@@ -7,6 +7,7 @@ func Endpoints() http.Handler {
 	// any auth related endpoints are defined in the AuthLayer
 	mx.Handle("/{$}", frontpage())
 	mx.Handle("/inside", inside())
+	mx.Handle("/settings", settings())
 	return mx
 }
 
@@ -23,5 +24,11 @@ func frontpage() http.HandlerFunc {
 func inside() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		page.ExecuteTemplate(w, "inside.html", existingSession(r))
+	}
+}
+
+func settings() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page.ExecuteTemplate(w, "settings.html", existingSession(r))
 	}
 }

@@ -25,8 +25,9 @@ func AuthLayer(next http.Handler) *http.ServeMux {
 
 func protect(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := r.Cookie("token")
-		if err != nil {
+		token, err := r.Cookie("token")
+		_, sessionFound := sessions[token.Value]
+		if err != nil || !sessionFound {
 			debug.Println(err)
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
