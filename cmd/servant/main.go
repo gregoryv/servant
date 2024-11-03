@@ -1,19 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gregoryv/servant"
 )
 
 func main() {
 	bind := ":8100"
-	debug.Println("listen", bind)
+	fmt.Println("listen", bind)
 
-	h := logware(
-		AuthLayer(
-			Endpoints(),
-		),
-	)
+	h := servant.New()
 
 	if err := http.ListenAndServe(bind, h); err != nil {
 		log.Fatal(err)
