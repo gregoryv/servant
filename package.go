@@ -23,7 +23,7 @@ func logware(next http.Handler) http.HandlerFunc {
 		// clean up sensitive values in query
 		query := r.URL.Query()
 		if k := "access_token"; query.Has(k) {
-			query.Set("access_token", "...")
+			query.Set("access_token", "***")
 		}
 		// log request/response and
 		path := r.URL.Path
@@ -52,7 +52,7 @@ func init() {
 
 var page *template.Template
 var funcMap = template.FuncMap{
-	"doX": func() string { return "x" },
+	//"doX": func() string { return "x" },
 }
 
 //go:embed htdocs
