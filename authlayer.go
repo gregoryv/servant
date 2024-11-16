@@ -10,7 +10,7 @@ import (
 	"github.com/gregoryv/oauth"
 )
 
-func AuthLayer(next http.Handler) *http.ServeMux {
+func authLayer(next http.Handler) *http.ServeMux {
 	mx := http.NewServeMux()
 	// explicitly set public patterns so that we don't accidently
 	// forget to protect a new endpoint

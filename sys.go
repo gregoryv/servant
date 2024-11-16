@@ -5,7 +5,7 @@ import "net/http"
 func New() *System {
 	sys := System{
 		Handler: logware(
-			AuthLayer(
+			authLayer(
 				endpoints(),
 			),
 		),
