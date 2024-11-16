@@ -76,12 +76,19 @@ func enter(token string, w http.ResponseWriter, r *http.Request) {
 }
 
 func existingSession(r *http.Request) Session {
-	ck, _ := r.Cookie("token")
+	ck, err := r.Cookie("token")
+	if err != nil {
+		return noSession
+	}
 	return sessions[ck.Value]
 }
 
 // token to name
 var sessions = make(map[string]Session)
+
+var noSession = Session{
+	Name: "anonymous",
+}
 
 // Once authenticated the session contains the information from
 // github.
