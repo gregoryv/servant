@@ -6,7 +6,7 @@ func New() *System {
 	sys := System{
 		Handler: logware(
 			AuthLayer(
-				Endpoints(),
+				endpoints(),
 			),
 		),
 	}

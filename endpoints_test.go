@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-func TestEndpoints_GET(t *testing.T) {
+func Test_endpoints_GET(t *testing.T) {
 	// require
-	h := Endpoints()
+	h := endpoints()
 	cases := []string{
 		"/",
 		"/inside",
