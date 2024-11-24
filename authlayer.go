@@ -25,7 +25,13 @@ func authLayer(next http.Handler) *http.ServeMux {
 
 func login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		url := githubOauth.AuthCodeURL(newState())
+		use := r.URL.Query().Get("use")
+		if use != "github" {
+			debug.Print("invalid use: ", use)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		url := githubOauth.AuthCodeURL(newState(use))
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
@@ -55,7 +61,7 @@ func callback() http.HandlerFunc {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-		{
+		{ // todo github is just one of the auth sources
 			r, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
 			r.Header.Set("Accept", "application/vnd.github.v3+json")
 			r.Header.Set("Authorization", "token "+token.AccessToken)
