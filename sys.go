@@ -2,7 +2,7 @@ package servant
 
 import "net/http"
 
-func New() *System {
+func NewSystem() *System {
 	sys := System{
 		Handler: logware(
 			authLayer(

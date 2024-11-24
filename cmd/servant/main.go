@@ -12,9 +12,9 @@ func main() {
 	bind := ":8100"
 	fmt.Println("listen", bind)
 
-	h := servant.New()
+	sys := servant.NewSystem()
 
-	if err := http.ListenAndServe(bind, h); err != nil {
+	if err := http.ListenAndServe(bind, sys); err != nil {
 		log.Fatal(err)
 	}
 }
