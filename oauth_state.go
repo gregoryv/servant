@@ -44,3 +44,11 @@ func verify(state string) error {
 	}
 	return nil
 }
+
+func parseUse(state string) string {
+	i := strings.Index(state, ".")
+	if i < 0 {
+		return ""
+	}
+	return state[:i]
+}

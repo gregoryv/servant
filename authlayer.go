@@ -1,21 +1,19 @@
 package servant
 
 import (
-	"encoding/json"
 	"net/http"
-	"os"
 
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/endpoints"
 )
 
 func authLayer(next http.Handler) *http.ServeMux {
 	mx := http.NewServeMux()
 	// explicitly set public patterns so that we don't accidently
 	// forget to protect a new endpoint
-	mx.Handle("/login", login())
+	sec := NewSecure()
+	mx.Handle("/login", login(sec))
 	// todo github is just one of the available auth sources
-	mx.Handle("/oauth/redirect", callback())
+	mx.Handle("/oauth/redirect", callback(sec))
 	mx.Handle("/{$}", next)
 
 	// everything else is private
@@ -23,15 +21,16 @@ func authLayer(next http.Handler) *http.ServeMux {
 	return mx
 }
 
-func login() http.HandlerFunc {
+func login(sec *Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
-		if use != "github" {
-			debug.Print("invalid use: ", use)
+		auth, err := sec.AuthService(use)
+		if err != nil {
+			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		url := githubOauth.AuthCodeURL(newState(use))
+		url := auth.AuthCodeURL(newState(use))
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
@@ -39,41 +38,43 @@ func login() http.HandlerFunc {
 func protect(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := sessionValid(r); err != nil {
-			debug.Println(err)
+			debug.Printf("protect: %v", err)
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 		}
 		next.ServeHTTP(w, r)
 	}
 }
 
-func callback() http.HandlerFunc {
+func callback(sec *Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := verify(r.FormValue("state")); err != nil {
-			debug.Print(err)
+		state := r.FormValue("state")
+		if err := verify(state); err != nil {
+			debug.Printf("callback: %v", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-
-		ctx := oauth2.NoContext
-		token, err := githubOauth.Exchange(ctx, r.FormValue("code"))
+		// which auth service was used
+		auth, err := sec.AuthService(parseUse(state))
 		if err != nil {
-			debug.Print("oauth exchange:", err)
+			debug.Printf("callback: %v", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-		{ // todo github is just one of the auth sources
-			r, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
-			r.Header.Set("Accept", "application/vnd.github.v3+json")
-			r.Header.Set("Authorization", "token "+token.AccessToken)
-			resp, err := http.DefaultClient.Do(r)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			var u user
-			json.NewDecoder(resp.Body).Decode(&u)
-			newSession(token, &u)
+		// get the token
+		ctx := oauth2.NoContext
+		token, err := auth.Exchange(ctx, r.FormValue("code"))
+		if err != nil {
+			debug.Printf("callback oauth exchange: %v", err)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
 		}
+		// get user information from the auth service
+		user, err := auth.readUser(token)
+		if err != nil {
+			debug.Printf("callback readUser: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		newSession(token, user)
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
@@ -84,11 +85,4 @@ func callback() http.HandlerFunc {
 		}
 		htdocs.ExecuteTemplate(w, "redirect.html", m)
 	}
-}
-
-var githubOauth = &oauth2.Config{
-	RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),
-	ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
-	ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
-	Endpoint:     endpoints.GitHub,
 }
