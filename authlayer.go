@@ -24,13 +24,13 @@ func authLayer(sec *htsec.Secure, next http.Handler) *http.ServeMux {
 func login(sec *htsec.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
-		auth, err := sec.AuthService(use)
+		Auth, err := sec.AuthService(use)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		url := auth.AuthCodeURL(newState(use))
+		url := Auth.AuthCodeURL(newState(use))
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
@@ -53,8 +53,8 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-		// which auth service was used
-		auth, err := sec.AuthService(parseUse(state))
+		// which Auth service was used
+		Auth, err := sec.AuthService(parseUse(state))
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -62,14 +62,14 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 		}
 		// get the token
 		ctx := oauth2.NoContext
-		token, err := auth.Exchange(ctx, r.FormValue("code"))
+		token, err := Auth.Exchange(ctx, r.FormValue("code"))
 		if err != nil {
 			debug.Printf("callback oauth exchange: %v", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-		// get user information from the auth service
-		user, err := auth.ReadUser(token)
+		// get user information from the Auth service
+		user, err := Auth.ReadUser(token)
 		if err != nil {
 			debug.Printf("callback readUser: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)

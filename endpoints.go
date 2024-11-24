@@ -4,7 +4,7 @@ import "net/http"
 
 func newRouter() http.Handler {
 	mx := http.NewServeMux()
-	// any auth related endpoints are defined in the AuthLayer
+	// any Auth related endpoints are defined in the AuthLayer
 	mx.Handle("/{$}", frontpage())
 	mx.Handle("/inside", inside())
 	mx.Handle("/settings", settings())

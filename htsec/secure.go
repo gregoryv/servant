@@ -13,8 +13,8 @@ import (
 
 func NewSecure() *Secure {
 	return &Secure{
-		src: map[string]*auth{
-			"github": &auth{
+		src: map[string]*Auth{
+			"github": &Auth{
 				Config:   githubOauth,
 				ReadUser: readGithubUser,
 			},
@@ -23,7 +23,7 @@ func NewSecure() *Secure {
 }
 
 type Secure struct {
-	src map[string]*auth
+	src map[string]*Auth
 }
 
 func (s *Secure) Names() []string {
@@ -35,7 +35,7 @@ func (s *Secure) Names() []string {
 	return res
 }
 
-func (s *Secure) AuthService(name string) (*auth, error) {
+func (s *Secure) AuthService(name string) (*Auth, error) {
 	a, found := s.src[name]
 	if !found {
 		return nil, fmt.Errorf("AuthService %v: %w", name, notFound)
@@ -45,7 +45,9 @@ func (s *Secure) AuthService(name string) (*auth, error) {
 
 var notFound = fmt.Errorf("not found")
 
-type auth struct {
+// ----------------------------------------
+
+type Auth struct {
 	*oauth2.Config
 	ReadUser func(token *oauth2.Token) (*User, error)
 }
