@@ -3,16 +3,16 @@ package servant
 import "net/http"
 
 func NewSystem() *System {
-	sys := System{
-		Handler: logware(
-			authLayer(
-				newRouter(),
-			),
-		),
-	}
+	var sys System
 	return &sys
 }
 
-type System struct {
-	http.Handler
+type System struct{}
+
+func (s *System) Handler() http.HandlerFunc {
+	return logware(
+		authLayer(
+			newRouter(),
+		),
+	)
 }

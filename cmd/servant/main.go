@@ -14,7 +14,8 @@ func main() {
 
 	sys := servant.NewSystem()
 
-	if err := http.ListenAndServe(bind, sys); err != nil {
+	h := sys.Handler()
+	if err := http.ListenAndServe(bind, h); err != nil {
 		log.Fatal(err)
 	}
 }
