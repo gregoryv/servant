@@ -103,11 +103,11 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
-		newSession(token, user)
+		newSession(state, token, user)
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
-		cookie := newCookie(token)
+		cookie := newCookie(state)
 		http.SetCookie(w, cookie)
 		m := map[string]string{
 			"Location": "/inside",

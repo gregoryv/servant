@@ -12,43 +12,45 @@ import (
 // Read more about security settings
 // https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps#pattern-bff-cookie-security
 
-func newCookie(t *oauth2.Token) *http.Cookie {
+func newCookie(state string) *http.Cookie {
 	return &http.Cookie{
-		Name:     "token",       // todo __Host-
-		Value:    t.AccessToken, // todo encrypt
+		Name:     cookieName, // todo __Host-
+		Value:    state,
 		Path:     "/",
 		Expires:  time.Now().Add(15 * time.Minute),
 		HttpOnly: true,
 	}
 }
 
+const cookieName = "state"
+
 func sessionValid(r *http.Request) error {
-	token, err := r.Cookie("token")
+	state, err := r.Cookie(cookieName)
 	if err != nil {
 		return err
 	}
-	if _, found := sessions[token.Value]; !found {
+	if _, found := sessions[state.Value]; !found {
 		return fmt.Errorf("missing session")
 	}
 	return nil
 }
 
 func existingSession(r *http.Request) Session {
-	ck, err := r.Cookie("token")
+	ck, err := r.Cookie(cookieName)
 	if err != nil {
 		return noSession
 	}
 	return sessions[ck.Value]
 }
 
-func newSession(t *oauth2.Token, u *htsec.User) {
+func newSession(state string, t *oauth2.Token, u *htsec.User) {
 	// cache the session
 	session := Session{
-		Token: t.AccessToken,
+		Token: t,
 		Name:  u.Name,
 		Email: u.Email,
 	}
-	sessions[t.AccessToken] = session
+	sessions[state] = session
 	debug.Println(session.String())
 }
 
@@ -61,7 +63,7 @@ var noSession = Session{
 
 // Once authenticated the session contains the information.
 type Session struct {
-	Token string
+	Token *oauth2.Token
 	Name  string
 	Email string
 }
