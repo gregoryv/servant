@@ -33,18 +33,9 @@ func login(state string) http.HandlerFunc {
 
 func protect(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token, err := r.Cookie("token")
-		if err != nil {
+		if err := sessionValid(r); err != nil {
 			debug.Println(err)
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		_, sessionFound := sessions[token.Value]
-		if !sessionFound {
-			debug.Println(err)
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
 		}
 		next.ServeHTTP(w, r)
 	}

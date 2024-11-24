@@ -21,6 +21,17 @@ func newCookie(t *oauth2.Token) *http.Cookie {
 	}
 }
 
+func sessionValid(r *http.Request) error {
+	token, err := r.Cookie("token")
+	if err != nil {
+		return err
+	}
+	if _, found := sessions[token.Value]; !found {
+		return fmt.Errorf("missing session")
+	}
+	return nil
+}
+
 func existingSession(r *http.Request) Session {
 	ck, err := r.Cookie("token")
 	if err != nil {
