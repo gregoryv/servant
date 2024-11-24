@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-func Test_endpoints_GET(t *testing.T) {
+func Test_newRouter_GET(t *testing.T) {
 	// require
-	h := endpoints()
+	h := newRouter()
 	cases := []string{
 		"/",
 		"/inside",

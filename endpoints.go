@@ -2,7 +2,7 @@ package servant
 
 import "net/http"
 
-func endpoints() http.Handler {
+func newRouter() http.Handler {
 	mx := http.NewServeMux()
 	// any auth related endpoints are defined in the AuthLayer
 	mx.Handle("/{$}", frontpage())

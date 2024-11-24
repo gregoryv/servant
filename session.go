@@ -20,8 +20,7 @@ var noSession = Session{
 	Name: "anonymous",
 }
 
-// Once authenticated the session contains the information from
-// github.
+// Once authenticated the session contains the information.
 type Session struct {
 	Token string
 	Name  string
