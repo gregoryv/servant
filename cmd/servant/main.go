@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	bind := ":8100"
-	fmt.Println("listen", bind)
-
 	sys := servant.NewSystem()
-
-	h := sys.Handler()
-	if err := http.ListenAndServe(bind, h); err != nil {
+	srv := http.Server{
+		Addr:    ":8100",
+		Handler: servant.NewRouter(sys),
+	}
+	fmt.Println("listen", srv.Addr)
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }

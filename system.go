@@ -9,7 +9,7 @@ func NewSystem() *System {
 
 type System struct{}
 
-func (s *System) Handler() http.HandlerFunc {
+func NewRouter(sys *System) http.HandlerFunc {
 	return logware(
 		authLayer(
 			newRouter(),
