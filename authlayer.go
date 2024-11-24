@@ -12,7 +12,7 @@ func authLayer(next http.Handler) *http.ServeMux {
 	// forget to protect a new endpoint
 	sec := NewSecure()
 	mx.Handle("/login", login(sec))
-	// todo github is just one of the available auth sources
+	// reuse the samme callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
 	mx.Handle("/{$}", next)
 
@@ -39,7 +39,7 @@ func protect(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := sessionValid(r); err != nil {
 			debug.Printf("protect: %v", err)
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 		next.ServeHTTP(w, r)
 	}
