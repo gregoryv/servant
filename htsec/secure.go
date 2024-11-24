@@ -57,10 +57,12 @@ var notFound = fmt.Errorf("not found")
 
 type Auth struct {
 	*oauth2.Config
-	ReadUser func(token *oauth2.Token) (*User, error)
+	ReadUser ReadUserFunc
 }
 
 type User struct {
 	Email string
 	Name  string
 }
+
+type ReadUserFunc = func(accessToken string) (*User, error)
