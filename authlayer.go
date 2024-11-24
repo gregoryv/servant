@@ -66,11 +66,6 @@ func callback(state string) http.HandlerFunc {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-
-		var user struct {
-			Email string
-			Name  string
-		}
 		{
 			r, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
 			r.Header.Set("Accept", "application/vnd.github.v3+json")
@@ -80,7 +75,9 @@ func callback(state string) http.HandlerFunc {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			json.NewDecoder(resp.Body).Decode(&user)
+			var u user
+			json.NewDecoder(resp.Body).Decode(&u)
+			newSession(token, &u)
 		}
 		cookie := http.Cookie{
 			Name:     "token",
@@ -89,14 +86,7 @@ func callback(state string) http.HandlerFunc {
 			Expires:  time.Now().Add(15 * time.Minute),
 			HttpOnly: true,
 		}
-		// cache the session
-		session := Session{
-			Token: token.AccessToken,
-			Name:  user.Name,
-			Email: user.Email,
-		}
-		sessions[session.Token] = session
-		debug.Println(session.String())
+
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
 		http.SetCookie(w, &cookie)
@@ -105,7 +95,6 @@ func callback(state string) http.HandlerFunc {
 		}
 		page.ExecuteTemplate(w, "redirect.html", m)
 	}
-
 }
 
 var githubOauth = &oauth2.Config{

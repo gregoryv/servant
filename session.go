@@ -3,6 +3,8 @@ package servant
 import (
 	"fmt"
 	"net/http"
+
+	"golang.org/x/oauth2"
 )
 
 func existingSession(r *http.Request) Session {
@@ -11,6 +13,22 @@ func existingSession(r *http.Request) Session {
 		return noSession
 	}
 	return sessions[ck.Value]
+}
+
+func newSession(t *oauth2.Token, u *user) {
+	// cache the session
+	session := Session{
+		Token: t.AccessToken,
+		Name:  u.Name,
+		Email: u.Email,
+	}
+	sessions[t.AccessToken] = session
+	debug.Println(session.String())
+}
+
+type user struct {
+	Email string
+	Name  string
 }
 
 // token to name
