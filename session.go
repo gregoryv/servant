@@ -14,8 +14,8 @@ import (
 
 func newCookie(t *oauth2.Token) *http.Cookie {
 	return &http.Cookie{
-		Name:     "token",
-		Value:    t.AccessToken,
+		Name:     "token",       // todo __Host-
+		Value:    t.AccessToken, // todo encrypt
 		Path:     "/",
 		Expires:  time.Now().Add(15 * time.Minute),
 		HttpOnly: true,

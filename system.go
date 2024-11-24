@@ -7,14 +7,14 @@ import (
 )
 
 func NewSystem() *System {
-	var sys System
-	return &sys
+	return &System{}
 }
 
-type System struct{}
+type System struct {
+	*htsec.Secure
+}
 
-func NewRouter(sys *System) http.HandlerFunc {
-	sec := htsec.NewSecure()
+func NewRouter(sys *System, sec *htsec.Secure) http.HandlerFunc {
 	return logware(
 		authLayer(
 			sec,
