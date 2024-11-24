@@ -8,21 +8,22 @@ import (
 )
 
 func NewRouter(sys *System, sec *htsec.Secure) http.HandlerFunc {
-	return logware(
-		authLayer(
-			sec,
-			newRouter(),
-		),
-	)
+	mx := http.NewServeMux()
+	mx.Handle("/{$}", frontpage())
+	mx.Handle("/login", login(sec))
+	// reuse the same callback endpoint
+	mx.Handle("/oauth/redirect", callback(sec))
+
+	// everything else is private
+	mx.Handle("/", private())
+	return logware(mx)
 }
 
-func newRouter() http.Handler {
+func private() http.Handler {
 	mx := http.NewServeMux()
-	// any Auth related endpoints are defined in the AuthLayer
-	mx.Handle("/{$}", frontpage())
 	mx.Handle("/inside", inside())
 	mx.Handle("/settings", settings())
-	return mx
+	return protect(mx)
 }
 
 func frontpage() http.HandlerFunc {
@@ -46,20 +47,6 @@ func settings() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
 	}
-}
-
-func authLayer(sec *htsec.Secure, next http.Handler) *http.ServeMux {
-	mx := http.NewServeMux()
-	// explicitly set public patterns so that we don't accidently
-	// forget to protect a new endpoint
-	mx.Handle("/login", login(sec))
-	// reuse the same callback endpoint
-	mx.Handle("/oauth/redirect", callback(sec))
-	mx.Handle("/{$}", next)
-
-	// everything else is private
-	mx.Handle("/", protect(next))
-	return mx
 }
 
 func login(sec *htsec.Secure) http.HandlerFunc {
