@@ -13,10 +13,9 @@ func authLayer(next http.Handler) *http.ServeMux {
 	mx := http.NewServeMux()
 	// explicitly set public patterns so that we don't accidently
 	// forget to protect a new endpoint
-	state := "RANDOM_STATE"
-	mx.Handle("/login", login(state))
+	mx.Handle("/login", login())
 	// todo github is just one of the available auth sources
-	mx.Handle("/oauth/redirect", callback(state))
+	mx.Handle("/oauth/redirect", callback())
 	mx.Handle("/{$}", next)
 
 	// everything else is private
@@ -24,9 +23,9 @@ func authLayer(next http.Handler) *http.ServeMux {
 	return mx
 }
 
-func login(state string) http.HandlerFunc {
+func login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		url := githubOauth.AuthCodeURL(state)
+		url := githubOauth.AuthCodeURL(newState())
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
@@ -41,10 +40,10 @@ func protect(next http.Handler) http.HandlerFunc {
 	}
 }
 
-func callback(state string) http.HandlerFunc {
+func callback() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.FormValue("state") != state {
-			debug.Print("missing state")
+		if err := verify(r.FormValue("state")); err != nil {
+			debug.Print(err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
