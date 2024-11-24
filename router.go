@@ -21,10 +21,23 @@ func NewRouter(sys *System, sec *htsec.Secure) http.HandlerFunc {
 
 func private() http.Handler {
 	mx := http.NewServeMux()
-	mx.Handle("/inside", inside())
-	mx.Handle("/settings", settings())
+	handle := withSession(mx)
+
+	handle("/inside", inside)
+	handle("/settings", settings)
 	return protect(mx)
 }
+
+func withSession(mx *http.ServeMux) func(string, privateFunc) {
+	return func(pattern string, next privateFunc) {
+		mx.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+			s := existingSession(r)
+			next(w, r, &s)
+		})
+	}
+}
+
+type privateFunc func(http.ResponseWriter, *http.Request, *Session)
 
 func frontpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -37,16 +50,12 @@ func frontpage() http.HandlerFunc {
 }
 
 // once authenticated, the user is inside
-func inside() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		htdocs.ExecuteTemplate(w, "inside.html", existingSession(r))
-	}
+func inside(w http.ResponseWriter, r *http.Request, s *Session) {
+	htdocs.ExecuteTemplate(w, "inside.html", s)
 }
 
-func settings() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
-	}
+func settings(w http.ResponseWriter, r *http.Request, s *Session) {
+	htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
 }
 
 func login(sec *htsec.Secure) http.HandlerFunc {
