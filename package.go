@@ -45,12 +45,12 @@ func (rec *statusRecorder) WriteHeader(code int) {
 }
 
 func init() {
-	page = template.Must(
+	htdocs = template.Must(
 		template.New("").Funcs(funcMap).ParseFS(asset, "htdocs/*"),
 	)
 }
 
-var page *template.Template
+var htdocs *template.Template
 var funcMap = template.FuncMap{
 	//"doX": func() string { return "x" },
 }

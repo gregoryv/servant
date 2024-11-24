@@ -93,7 +93,7 @@ func callback(state string) http.HandlerFunc {
 		m := map[string]string{
 			"Location": "/inside",
 		}
-		page.ExecuteTemplate(w, "redirect.html", m)
+		htdocs.ExecuteTemplate(w, "redirect.html", m)
 	}
 }
 

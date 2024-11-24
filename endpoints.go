@@ -16,19 +16,19 @@ func frontpage() http.HandlerFunc {
 		m := map[string]any{
 			"PathLoginGithub": "/login",
 		}
-		page.ExecuteTemplate(w, "index.html", m)
+		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
 }
 
 // once authenticated, the user is inside
 func inside() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page.ExecuteTemplate(w, "inside.html", existingSession(r))
+		htdocs.ExecuteTemplate(w, "inside.html", existingSession(r))
 	}
 }
 
 func settings() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		page.ExecuteTemplate(w, "settings.html", existingSession(r))
+		htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
 	}
 }
