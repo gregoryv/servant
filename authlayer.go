@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
@@ -79,17 +78,11 @@ func callback(state string) http.HandlerFunc {
 			json.NewDecoder(resp.Body).Decode(&u)
 			newSession(token, &u)
 		}
-		cookie := http.Cookie{
-			Name:     "token",
-			Value:    token.AccessToken,
-			Path:     "/",
-			Expires:  time.Now().Add(15 * time.Minute),
-			HttpOnly: true,
-		}
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
-		http.SetCookie(w, &cookie)
+		cookie := newCookie(token)
+		http.SetCookie(w, cookie)
 		m := map[string]string{
 			"Location": "/inside",
 		}

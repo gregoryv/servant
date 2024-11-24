@@ -3,9 +3,23 @@ package servant
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"golang.org/x/oauth2"
 )
+
+// Read more about security settings
+// https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps#pattern-bff-cookie-security
+
+func newCookie(t *oauth2.Token) *http.Cookie {
+	return &http.Cookie{
+		Name:     "token",
+		Value:    t.AccessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(15 * time.Minute),
+		HttpOnly: true,
+	}
+}
 
 func existingSession(r *http.Request) Session {
 	ck, err := r.Cookie("token")
