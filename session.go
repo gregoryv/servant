@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gregoryv/servant/htsec"
 	"golang.org/x/oauth2"
 )
 
@@ -40,7 +41,7 @@ func existingSession(r *http.Request) Session {
 	return sessions[ck.Value]
 }
 
-func newSession(t *oauth2.Token, u *user) {
+func newSession(t *oauth2.Token, u *htsec.User) {
 	// cache the session
 	session := Session{
 		Token: t.AccessToken,
@@ -49,11 +50,6 @@ func newSession(t *oauth2.Token, u *user) {
 	}
 	sessions[t.AccessToken] = session
 	debug.Println(session.String())
-}
-
-type user struct {
-	Email string
-	Name  string
 }
 
 // token to name

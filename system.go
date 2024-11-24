@@ -1,6 +1,10 @@
 package servant
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/gregoryv/servant/htsec"
+)
 
 func NewSystem() *System {
 	var sys System
@@ -10,8 +14,10 @@ func NewSystem() *System {
 type System struct{}
 
 func NewRouter(sys *System) http.HandlerFunc {
+	sec := htsec.NewSecure()
 	return logware(
 		authLayer(
+			sec,
 			newRouter(),
 		),
 	)

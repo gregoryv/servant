@@ -3,14 +3,14 @@ package servant
 import (
 	"net/http"
 
+	"github.com/gregoryv/servant/htsec"
 	"golang.org/x/oauth2"
 )
 
-func authLayer(next http.Handler) *http.ServeMux {
+func authLayer(sec *htsec.Secure, next http.Handler) *http.ServeMux {
 	mx := http.NewServeMux()
 	// explicitly set public patterns so that we don't accidently
 	// forget to protect a new endpoint
-	sec := NewSecure()
 	mx.Handle("/login", login(sec))
 	// reuse the samme callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
@@ -21,7 +21,7 @@ func authLayer(next http.Handler) *http.ServeMux {
 	return mx
 }
 
-func login(sec *Secure) http.HandlerFunc {
+func login(sec *htsec.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
 		auth, err := sec.AuthService(use)
@@ -45,7 +45,7 @@ func protect(next http.Handler) http.HandlerFunc {
 	}
 }
 
-func callback(sec *Secure) http.HandlerFunc {
+func callback(sec *htsec.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
 		if err := verify(state); err != nil {
@@ -69,7 +69,7 @@ func callback(sec *Secure) http.HandlerFunc {
 			return
 		}
 		// get user information from the auth service
-		user, err := auth.readUser(token)
+		user, err := auth.ReadUser(token)
 		if err != nil {
 			debug.Printf("callback readUser: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)

@@ -1,4 +1,4 @@
-package servant
+package htsec
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ func NewSecure() *Secure {
 		src: map[string]*auth{
 			"github": &auth{
 				Config:   githubOauth,
-				readUser: readGithubUser,
+				ReadUser: readGithubUser,
 			},
 		},
 	}
@@ -47,7 +47,7 @@ var notFound = fmt.Errorf("not found")
 
 type auth struct {
 	*oauth2.Config
-	readUser func(token *oauth2.Token) (*user, error)
+	ReadUser func(token *oauth2.Token) (*User, error)
 }
 
 var githubOauth = &oauth2.Config{
@@ -57,7 +57,7 @@ var githubOauth = &oauth2.Config{
 	Endpoint:     endpoints.GitHub,
 }
 
-func readGithubUser(token *oauth2.Token) (*user, error) {
+func readGithubUser(token *oauth2.Token) (*User, error) {
 	r, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
 	r.Header.Set("Accept", "application/vnd.github.v3+json")
 	r.Header.Set("Authorization", "token "+token.AccessToken)
@@ -65,7 +65,7 @@ func readGithubUser(token *oauth2.Token) (*user, error) {
 	if err != nil {
 		return nil, err
 	}
-	var u user
+	var u User
 	if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
 		return nil, err
 	}
