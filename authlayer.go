@@ -2,7 +2,6 @@ package servant
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -15,6 +14,7 @@ func authLayer(next http.Handler) *http.ServeMux {
 	// explicitly set public patterns so that we don't accidently
 	// forget to protect a new endpoint
 	mx.Handle("/login", github.Login())
+	// todo github is just one of the available auth sources
 	mx.Handle("GET "+github.RedirectPath(), github.Authorize(enter))
 	mx.Handle("/{$}", next)
 
@@ -75,33 +75,7 @@ func enter(token string, w http.ResponseWriter, r *http.Request) {
 	page.ExecuteTemplate(w, "redirect.html", m)
 }
 
-func existingSession(r *http.Request) Session {
-	ck, err := r.Cookie("token")
-	if err != nil {
-		return noSession
-	}
-	return sessions[ck.Value]
-}
-
-// token to name
-var sessions = make(map[string]Session)
-
-var noSession = Session{
-	Name: "anonymous",
-}
-
-// Once authenticated the session contains the information from
-// github.
-type Session struct {
-	Token string
-	Name  string
-	Email string
-}
-
-func (s *Session) String() string {
-	return fmt.Sprintln(s.Name, s.Email)
-}
-
+// use x/oauth2 with github.Endpoint
 var github = oauth.Github{
 	ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
 	ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
