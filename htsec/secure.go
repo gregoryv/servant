@@ -65,4 +65,4 @@ type User struct {
 	Name  string
 }
 
-type ReadUserFunc = func(accessToken string) (*User, error)
+type ReadUserFunc = func(token *oauth2.Token) (*User, error)

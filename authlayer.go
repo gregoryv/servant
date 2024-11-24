@@ -69,10 +69,11 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 			return
 		}
 		// get user information from the Auth service
-		user, err := Auth.ReadUser(token.AccessToken)
+		user, err := Auth.ReadUser(token)
 		if err != nil {
 			debug.Printf("callback readUser: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 		newSession(token, user)
 

@@ -15,6 +15,7 @@ func frontpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := map[string]any{
 			"PathLoginGithub": "/login?use=github",
+			"PathLoginGoogle": "/login?use=google",
 		}
 		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
