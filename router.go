@@ -78,14 +78,14 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 		state := r.FormValue("state")
 		if err := verify(state); err != nil {
 			debug.Printf("callback: %v", err)
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 		// which Auth service was used
 		Auth, err := sec.AuthService(parseUse(state))
 		if err != nil {
 			debug.Printf("callback: %v", err)
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 		// get the token
@@ -93,14 +93,14 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 		token, err := Auth.Exchange(ctx, r.FormValue("code"))
 		if err != nil {
 			debug.Printf("callback oauth exchange: %v", err)
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 		// get user information from the Auth service
 		user, err := Auth.ReadUser(token)
 		if err != nil {
 			debug.Printf("callback readUser: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 		newSession(token, user)
