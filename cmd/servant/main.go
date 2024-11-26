@@ -15,8 +15,6 @@ import (
 )
 
 func main() {
-	sys := servant.NewSystem()
-
 	sec := htsec.NewSecure()
 	sec.Use(&htsec.Auth{
 		Config: &oauth2.Config{
@@ -40,9 +38,12 @@ func main() {
 		ReadUser: google.ReadUser(googleConf),
 	})
 
+	sys := servant.NewSystem()
+	sys.SetSecurity(sec)
+
 	srv := http.Server{
 		Addr:    ":8100",
-		Handler: servant.NewRouter(sys, sec),
+		Handler: servant.NewRouter(sys),
 	}
 
 	fmt.Println("listen", srv.Addr)

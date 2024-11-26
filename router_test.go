@@ -11,8 +11,9 @@ import (
 func Test_NewRouter_GET(t *testing.T) {
 	// require
 	sys := NewSystem()
-	sec := htsec.NewSecure()
-	h := NewRouter(sys, sec)
+	sys.SetSecurity(htsec.NewSecure())
+
+	h := NewRouter(sys)
 	cases := map[string]int{
 		// public
 		"/": 200,

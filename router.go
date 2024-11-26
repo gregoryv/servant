@@ -7,7 +7,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func NewRouter(sys *System, sec *htsec.Secure) http.HandlerFunc {
+func NewRouter(sys *System) http.HandlerFunc {
+	sec := sys.Security()
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", frontpage())
 	mx.Handle("/login", login(sec))
