@@ -16,7 +16,7 @@ import (
 
 func main() {
 	sec := htsec.NewSecure()
-	sec.Use(&htsec.Auth{
+	sec.Include(&htsec.Auth{
 		Config: &oauth2.Config{
 			RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),
 			ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
@@ -33,7 +33,7 @@ func main() {
 		Scopes:       []string{"profile", "email"},
 		Endpoint:     endpoints.Google,
 	}
-	sec.Use(&htsec.Auth{
+	sec.Include(&htsec.Auth{
 		Config:   googleConf,
 		ReadUser: google.ReadUser(googleConf),
 	})
