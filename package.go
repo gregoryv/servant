@@ -4,45 +4,10 @@ import (
 	"embed"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"text/template"
-	"time"
 )
-
-func logware(next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		// Initialize the status to 200 in case WriteHeader is not called
-		rec := statusRecorder{w, 200}
-
-		// do
-		next.ServeHTTP(&rec, r)
-
-		// clean up sensitive values in query
-		query := r.URL.Query()
-		if k := "access_token"; query.Has(k) {
-			query.Set("access_token", "***")
-		}
-		// log request/response and
-		path := r.URL.Path
-		if v := query.Encode(); v != "" {
-			path += "?" + v
-		}
-		debug.Println(r.Method, path, rec.status, time.Since(start))
-	}
-}
-
-type statusRecorder struct {
-	http.ResponseWriter
-	status int
-}
-
-func (rec *statusRecorder) WriteHeader(code int) {
-	rec.status = code
-	rec.ResponseWriter.WriteHeader(code)
-}
 
 func init() {
 	htdocs = template.Must(

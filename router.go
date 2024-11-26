@@ -3,6 +3,7 @@ package servant
 import (
 	"net/http"
 
+	"github.com/gregoryv/htlog"
 	"github.com/gregoryv/servant/htsec"
 	"golang.org/x/oauth2"
 )
@@ -17,7 +18,12 @@ func NewRouter(sys *System) http.HandlerFunc {
 
 	// everything else is private
 	mx.Handle("/", private())
-	return logware(mx)
+
+	log := htlog.Middleware{
+		Println: debug.Println,
+		Clean:   htlog.QueryHide("access_token"),
+	}
+	return log.Use(mx)
 }
 
 func frontpage() http.HandlerFunc {
@@ -52,8 +58,8 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
-		// which Auth service was used
-		Auth, err := sec.AuthService(parseUse(state))
+		// which auth service was used
+		auth, err := sec.AuthService(parseUse(state))
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
@@ -61,14 +67,14 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 		}
 		// get the token
 		ctx := oauth2.NoContext
-		token, err := Auth.Exchange(ctx, r.FormValue("code"))
+		token, err := auth.Exchange(ctx, r.FormValue("code"))
 		if err != nil {
 			debug.Printf("callback oauth exchange: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 		// get user information from the Auth service
-		user, err := Auth.ReadUser(token)
+		user, err := auth.ReadUser(token)
 		if err != nil {
 			debug.Printf("callback readUser: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
