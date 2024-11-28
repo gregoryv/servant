@@ -42,8 +42,9 @@ func (s *Secure) Authorize(ctx context.Context, state, code string) (*oauth2.Tok
 		return nil, nil, err
 	}
 
+	client := auth.Client(ctx, token)
 	// get user information from the Auth service
-	contact, err := auth.Contact(token)
+	contact, err := auth.Contact(client)
 	if err != nil {
 		return token, nil, err
 	}

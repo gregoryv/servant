@@ -2,23 +2,18 @@ package google
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gregoryv/servant/htauth"
-	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 )
 
-func Contact(config *oauth2.Config) htauth.ContactFunc {
-	return func(token *oauth2.Token) (*htauth.Contact, error) {
+func Contact() htauth.ContactFunc {
+	return func(c *http.Client) (*htauth.Contact, error) {
 		ctx := context.Background()
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: token.AccessToken},
-		)
-		oauthClient := oauth2.NewClient(ctx, ts)
-
 		service, err := people.NewService(ctx,
-			option.WithHTTPClient(oauthClient),
+			option.WithHTTPClient(c),
 		)
 		if err != nil {
 			return nil, err
