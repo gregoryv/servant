@@ -3,11 +3,27 @@ package google
 import (
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/gregoryv/servant/htsec"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/endpoints"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 )
+
+func Default() *htsec.Gate {
+	return &htsec.Gate{
+		Config: &oauth2.Config{
+			RedirectURL:  os.Getenv("OAUTH_GOOGLE_REDIRECT_URI"),
+			ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),
+			ClientSecret: os.Getenv("OAUTH_GOOGLE_SECRET"),
+			Scopes:       []string{"profile", "email"},
+			Endpoint:     endpoints.Google,
+		},
+		Contact: Contact,
+	}
+}
 
 func Contact(c *http.Client) (*htsec.Contact, error) {
 	ctx := context.Background()

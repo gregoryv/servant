@@ -3,9 +3,24 @@ package github
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/gregoryv/servant/htsec"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/endpoints"
 )
+
+func Default() *htsec.Gate {
+	return &htsec.Gate{
+		Config: &oauth2.Config{
+			RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),
+			ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
+			ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
+			Endpoint:     endpoints.GitHub,
+		},
+		Contact: Contact,
+	}
+}
 
 func Contact(c *http.Client) (*htsec.Contact, error) {
 	r, _ := http.NewRequest(
