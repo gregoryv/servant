@@ -23,16 +23,16 @@ func (s *Secure) NewState(use string) (string, error) {
 	}
 	// both random value and the signature must be usable in a url
 	random := hex.EncodeToString(randomBytes)
-	signature := s.Sign(random)
+	signature := s.sign(random)
 	return use + "." + random + "." + signature, nil
 }
 
 func (s *Secure) Authorize(ctx context.Context, state, code string) (*oauth2.Token, *Contact, error) {
-	if err := s.Verify(state); err != nil {
+	if err := s.verify(state); err != nil {
 		return nil, nil, err
 	}
 	// which auth service was used
-	auth, err := s.AuthService(s.ParseUse(state))
+	auth, err := s.AuthService(s.parseUse(state))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -51,27 +51,27 @@ func (s *Secure) Authorize(ctx context.Context, state, code string) (*oauth2.Tok
 	return token, contact, err
 }
 
-func (s *Secure) Sign(random string) string {
-	hash := sha256.New()
-	hash.Write([]byte(random))
-	hash.Write(s.PrivateKey)
-	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
-}
-
 // verify USE.RANDOM.SIGNATURE
-func (s *Secure) Verify(state string) error {
+func (s *Secure) verify(state string) error {
 	parts := strings.Split(state, ".")
 	if len(parts) != 3 {
 		return fmt.Errorf("state: invalid format")
 	}
-	signature := s.Sign(parts[1])
+	signature := s.sign(parts[1])
 	if signature != parts[2] {
 		return fmt.Errorf("state: invalid signature")
 	}
 	return nil
 }
 
-func (s *Secure) ParseUse(state string) string {
+func (s *Secure) sign(random string) string {
+	hash := sha256.New()
+	hash.Write([]byte(random))
+	hash.Write(s.PrivateKey)
+	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
+}
+
+func (s *Secure) parseUse(state string) string {
 	i := strings.Index(state, ".")
 	if i < 0 {
 		return ""
