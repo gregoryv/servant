@@ -39,7 +39,7 @@ func frontpage() http.HandlerFunc {
 func login(sec *htauth.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
-		svc, err := sec.AuthService(use)
+		svc, err := sec.Gate(use)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)

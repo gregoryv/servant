@@ -32,7 +32,7 @@ func (s *Guard) Authorize(ctx context.Context, state, code string) (*oauth2.Toke
 		return nil, nil, err
 	}
 	// which auth service was used
-	auth, err := s.AuthService(s.parseUse(state))
+	auth, err := s.Gate(s.parseUse(state))
 	if err != nil {
 		return nil, nil, err
 	}

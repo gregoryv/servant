@@ -11,7 +11,7 @@ import (
 func NewGuard() *Guard {
 	s := Guard{
 		PrivateKey: make([]byte, 32),
-		src:        make(map[string]*AuthService),
+		src:        make(map[string]*Gate),
 	}
 	_, _ = rand.Read(s.PrivateKey)
 	return &s
@@ -19,15 +19,17 @@ func NewGuard() *Guard {
 
 type Guard struct {
 	PrivateKey []byte
-	src        map[string]*AuthService
+	src        map[string]*Gate
 }
 
 // Include authorization service. It's name will be the significant
 // part of the AuthURL, e.g. for http://example.com/ the name will be
 // example.
-func (s *Guard) Include(a *AuthService) {
-	name := domainName(a.Endpoint.AuthURL)
-	s.src[name] = a
+func (s *Guard) Include(gates ...*Gate) {
+	for _, gate := range gates {
+		name := domainName(gate.Endpoint.AuthURL)
+		s.src[name] = gate
+	}
 }
 
 func domainName(uri string) string {
@@ -50,7 +52,7 @@ func (s *Guard) Names() []string {
 }
 
 // AuthService returns named service if included, error if not found.
-func (s *Guard) AuthService(name string) (*AuthService, error) {
+func (s *Guard) Gate(name string) (*Gate, error) {
 	a, found := s.src[name]
 	if !found {
 		err := fmt.Errorf("Secure.AuthService %v: %w", name, notFound)
