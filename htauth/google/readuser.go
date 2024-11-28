@@ -3,14 +3,14 @@ package google
 import (
 	"context"
 
-	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/servant/htauth"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 )
 
-func ReadUser(config *oauth2.Config) htsec.ReadUserFunc {
-	return func(token *oauth2.Token) (*htsec.User, error) {
+func ReadUser(config *oauth2.Config) htauth.ReadUserFunc {
+	return func(token *oauth2.Token) (*htauth.User, error) {
 		ctx := context.Background()
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token.AccessToken},
@@ -31,7 +31,7 @@ func ReadUser(config *oauth2.Config) htsec.ReadUserFunc {
 			return nil, err
 		}
 
-		var u htsec.User
+		var u htauth.User
 		if len(profile.EmailAddresses) > 0 {
 			u.Email = profile.EmailAddresses[0].Value
 		}

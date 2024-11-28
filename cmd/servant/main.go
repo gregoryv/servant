@@ -7,16 +7,16 @@ import (
 	"os"
 
 	"github.com/gregoryv/servant"
-	"github.com/gregoryv/servant/htsec"
-	"github.com/gregoryv/servant/htsec/github"
-	"github.com/gregoryv/servant/htsec/google"
+	"github.com/gregoryv/servant/htauth"
+	"github.com/gregoryv/servant/htauth/github"
+	"github.com/gregoryv/servant/htauth/google"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
 )
 
 func main() {
-	sec := htsec.NewSecure()
-	sec.Include(&htsec.Auth{
+	sec := htauth.NewSecure()
+	sec.Include(&htauth.Auth{
 		Config: &oauth2.Config{
 			RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),
 			ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
@@ -33,7 +33,7 @@ func main() {
 		Scopes:       []string{"profile", "email"},
 		Endpoint:     endpoints.Google,
 	}
-	sec.Include(&htsec.Auth{
+	sec.Include(&htauth.Auth{
 		Config:   googleConf,
 		ReadUser: google.ReadUser(googleConf),
 	})

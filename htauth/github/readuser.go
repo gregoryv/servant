@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/servant/htauth"
 	"golang.org/x/oauth2"
 )
 
-func ReadUser(c *http.Client) htsec.ReadUserFunc {
-	return func(token *oauth2.Token) (*htsec.User, error) {
+func ReadUser(c *http.Client) htauth.ReadUserFunc {
+	return func(token *oauth2.Token) (*htauth.User, error) {
 		r, _ := http.NewRequest(
 			"GET", "https://api.github.com/user", nil,
 		)
@@ -20,7 +20,7 @@ func ReadUser(c *http.Client) htsec.ReadUserFunc {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		var u htsec.User
+		var u htauth.User
 		if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
 			return nil, err
 		}

@@ -1,4 +1,4 @@
-package htsec
+package htauth
 
 import (
 	"fmt"

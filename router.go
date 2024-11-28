@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gregoryv/htlog"
-	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/servant/htauth"
 	"golang.org/x/oauth2"
 )
 
@@ -36,7 +36,7 @@ func frontpage() http.HandlerFunc {
 	}
 }
 
-func login(sec *htsec.Secure) http.HandlerFunc {
+func login(sec *htauth.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
 		Auth, err := sec.AuthService(use)
@@ -50,7 +50,7 @@ func login(sec *htsec.Secure) http.HandlerFunc {
 	}
 }
 
-func callback(sec *htsec.Secure) http.HandlerFunc {
+func callback(sec *htauth.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
 		if err := verify(state); err != nil {
