@@ -36,10 +36,10 @@ func frontpage() http.HandlerFunc {
 	}
 }
 
-func login(sec *htauth.Guard) http.HandlerFunc {
+func login(guard *htauth.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		gate := r.URL.Query().Get("use")
-		url, err := sec.WhereIs(gate)
+		url, err := guard.WhereIs(gate)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -49,12 +49,12 @@ func login(sec *htauth.Guard) http.HandlerFunc {
 	}
 }
 
-func callback(sec *htauth.Guard) http.HandlerFunc {
+func callback(guard *htauth.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
 		code := r.FormValue("code")
 		ctx := oauth2.NoContext
-		token, contact, err := sec.Authorize(ctx, state, code)
+		token, contact, err := guard.Authorize(ctx, state, code)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
