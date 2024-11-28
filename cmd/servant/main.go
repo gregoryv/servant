@@ -7,17 +7,17 @@ import (
 	"os"
 
 	"github.com/gregoryv/servant"
-	"github.com/gregoryv/servant/htauth"
-	"github.com/gregoryv/servant/htauth/github"
-	"github.com/gregoryv/servant/htauth/google"
+	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/servant/htsec/github"
+	"github.com/gregoryv/servant/htsec/google"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
 )
 
 func main() {
-	guard := htauth.NewGuard()
+	guard := htsec.NewGuard()
 	guard.Include(
-		&htauth.Gate{
+		&htsec.Gate{
 			Config: &oauth2.Config{
 				RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),
 				ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
@@ -26,7 +26,7 @@ func main() {
 			},
 			Contact: github.Contact,
 		},
-		&htauth.Gate{
+		&htsec.Gate{
 			Config: &oauth2.Config{
 				RedirectURL:  os.Getenv("OAUTH_GOOGLE_REDIRECT_URI"),
 				ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),

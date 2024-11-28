@@ -4,12 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gregoryv/servant/htauth"
+	"github.com/gregoryv/servant/htsec"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 )
 
-func Contact(c *http.Client) (*htauth.Contact, error) {
+func Contact(c *http.Client) (*htsec.Contact, error) {
 	ctx := context.Background()
 	service, err := people.NewService(ctx,
 		option.WithHTTPClient(c),
@@ -25,7 +25,7 @@ func Contact(c *http.Client) (*htauth.Contact, error) {
 		return nil, err
 	}
 
-	var u htauth.Contact
+	var u htsec.Contact
 	if len(profile.EmailAddresses) > 0 {
 		u.Email = profile.EmailAddresses[0].Value
 	}

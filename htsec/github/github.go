@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gregoryv/servant/htauth"
+	"github.com/gregoryv/servant/htsec"
 )
 
-func Contact(c *http.Client) (*htauth.Contact, error) {
+func Contact(c *http.Client) (*htsec.Contact, error) {
 	r, _ := http.NewRequest(
 		"GET", "https://api.github.com/user", nil,
 	)
@@ -17,7 +17,7 @@ func Contact(c *http.Client) (*htauth.Contact, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	var u htauth.Contact
+	var u htsec.Contact
 	if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
 		return nil, err
 	}

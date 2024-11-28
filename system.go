@@ -1,6 +1,6 @@
 package servant
 
-import "github.com/gregoryv/servant/htauth"
+import "github.com/gregoryv/servant/htsec"
 
 func NewSystem() *System {
 	return &System{}
@@ -9,8 +9,8 @@ func NewSystem() *System {
 // System carries domain logic which is exposed via a [http.Handler]
 // using [NewRouter].
 type System struct {
-	security *htauth.Guard
+	security *htsec.Guard
 }
 
-func (sys *System) SetSecurity(v *htauth.Guard) { sys.security = v }
-func (sys *System) Security() *htauth.Guard     { return sys.security }
+func (sys *System) SetSecurity(v *htsec.Guard) { sys.security = v }
+func (sys *System) Security() *htsec.Guard     { return sys.security }

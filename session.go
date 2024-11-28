@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gregoryv/servant/htauth"
+	"github.com/gregoryv/servant/htsec"
 	"golang.org/x/oauth2"
 )
 
@@ -43,7 +43,7 @@ func existingSession(r *http.Request) Session {
 	return sessions[ck.Value]
 }
 
-func newSession(state string, t *oauth2.Token, u *htauth.Contact) {
+func newSession(state string, t *oauth2.Token, u *htsec.Contact) {
 	// cache the session
 	session := Session{
 		Token: t,

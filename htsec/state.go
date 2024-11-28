@@ -1,4 +1,4 @@
-package htauth
+package htsec
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package htauth
+package htsec
 
 type Contact struct {
 	Email string
