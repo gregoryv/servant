@@ -13,7 +13,7 @@ import (
 )
 
 // NewState returns a string use.RANDOM.SIGNATURE using som private
-func (s *Guard) NewState(use string) (string, error) {
+func (s *Guard) newState(use string) (string, error) {
 	// see https://stackoverflow.com/questions/26132066/\
 	//   what-is-the-purpose-of-the-state-parameter-in-oauth-authorization-request
 	randomBytes := make([]byte, 32)
@@ -84,7 +84,7 @@ func (s *Guard) WhereIs(use string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	state, err := s.NewState(use)
+	state, err := s.newState(use)
 	if err != nil {
 		return "", err
 	}
