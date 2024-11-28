@@ -23,7 +23,7 @@ func main() {
 			ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
 			Endpoint:     endpoints.GitHub,
 		},
-		Contact: github.Contact(),
+		Contact: github.Contact,
 	})
 
 	googleConf := &oauth2.Config{
@@ -35,7 +35,7 @@ func main() {
 	}
 	sec.Include(&htauth.Auth{
 		Config:  googleConf,
-		Contact: google.Contact(),
+		Contact: google.Contact,
 	})
 
 	sys := servant.NewSystem()
