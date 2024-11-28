@@ -1,6 +1,7 @@
 package htauth
 
 import (
+	"crypto/rand"
 	"fmt"
 	"net/url"
 	"sort"
@@ -9,13 +10,16 @@ import (
 
 func NewSecure() *Secure {
 	s := Secure{
-		src: make(map[string]*Auth),
+		PrivateKey: make([]byte, 32),
+		src:        make(map[string]*Auth),
 	}
+	_, _ = rand.Read(s.PrivateKey)
 	return &s
 }
 
 type Secure struct {
-	src map[string]*Auth
+	PrivateKey []byte
+	src        map[string]*Auth
 }
 
 // Include authorization service. It's name will be the significant

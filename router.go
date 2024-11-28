@@ -39,13 +39,19 @@ func frontpage() http.HandlerFunc {
 func login(sec *htauth.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
-		Auth, err := sec.AuthService(use)
+		auth, err := sec.AuthService(use)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		url := Auth.AuthCodeURL(newState(use))
+		state, err := sec.NewState(use)
+		if err != nil {
+			debug.Print(err)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		url := auth.AuthCodeURL(state)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
@@ -53,33 +59,15 @@ func login(sec *htauth.Secure) http.HandlerFunc {
 func callback(sec *htauth.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
-		if err := verify(state); err != nil {
-			debug.Printf("callback: %v", err)
-			htdocs.ExecuteTemplate(w, "error.html", err)
-			return
-		}
-		// which auth service was used
-		auth, err := sec.AuthService(parseUse(state))
-		if err != nil {
-			debug.Printf("callback: %v", err)
-			htdocs.ExecuteTemplate(w, "error.html", err)
-			return
-		}
-		// get the token
+		code := r.FormValue("code")
 		ctx := oauth2.NoContext
-		token, err := auth.Exchange(ctx, r.FormValue("code"))
+		token, contact, err := sec.VerifyAndExchange(ctx, state, code)
 		if err != nil {
-			debug.Printf("callback oauth exchange: %v", err)
+			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
-		// get user information from the Auth service
-		contact, err := auth.Contact(token)
-		if err != nil {
-			debug.Printf("callback Contact: %v", err)
-			htdocs.ExecuteTemplate(w, "error.html", err)
-			return
-		}
+
 		newSession(state, token, contact)
 
 		// return a page just to set a cookie and then redirect to a
