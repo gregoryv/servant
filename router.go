@@ -39,7 +39,7 @@ func frontpage() http.HandlerFunc {
 func login(sec *htauth.Secure) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
-		auth, err := sec.AuthService(use)
+		svc, err := sec.AuthService(use)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -51,7 +51,7 @@ func login(sec *htauth.Secure) http.HandlerFunc {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		url := auth.AuthCodeURL(state)
+		url := svc.AuthCodeURL(state)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
@@ -61,7 +61,7 @@ func callback(sec *htauth.Secure) http.HandlerFunc {
 		state := r.FormValue("state")
 		code := r.FormValue("code")
 		ctx := oauth2.NoContext
-		token, contact, err := sec.VerifyAndExchange(ctx, state, code)
+		token, contact, err := sec.Authorize(ctx, state, code)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)

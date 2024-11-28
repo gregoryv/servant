@@ -27,7 +27,7 @@ func (s *Secure) NewState(use string) (string, error) {
 	return use + "." + random + "." + signature, nil
 }
 
-func (s *Secure) VerifyAndExchange(ctx context.Context, state, code string) (*oauth2.Token, *Contact, error) {
+func (s *Secure) Authorize(ctx context.Context, state, code string) (*oauth2.Token, *Contact, error) {
 	if err := s.Verify(state); err != nil {
 		return nil, nil, err
 	}
