@@ -61,7 +61,7 @@ var noSession = Session{
 	Name: "anonymous",
 }
 
-// Once authenticated the session contains the information.
+// Once authorized the session contains the information.
 type Session struct {
 	Token *oauth2.Token
 	Name  string

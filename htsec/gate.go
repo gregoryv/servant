@@ -10,6 +10,6 @@ type Gate struct {
 	// Used for the oauth2 flow
 	*oauth2.Config
 
-	// Used to read contact information once authenticated
+	// Used to read contact information once authorized
 	Contact func(client *http.Client) (*Contact, error)
 }

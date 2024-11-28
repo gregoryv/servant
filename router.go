@@ -5,16 +5,15 @@ import (
 
 	"github.com/gregoryv/htlog"
 	"github.com/gregoryv/servant/htsec"
-	"golang.org/x/oauth2"
 )
 
 func NewRouter(sys *System) http.HandlerFunc {
-	sec := sys.Security()
+	guard := sys.Security()
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", frontpage())
-	mx.Handle("/login", login(sec))
+	mx.Handle("/login", login(guard))
 	// reuse the same callback endpoint
-	mx.Handle("/oauth/redirect", callback(sec))
+	mx.Handle("/oauth/redirect", callback(guard))
 
 	// everything else is private
 	mx.Handle("/", private())
@@ -53,7 +52,7 @@ func callback(guard *htsec.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
 		code := r.FormValue("code")
-		ctx := oauth2.NoContext
+		ctx := r.Context()
 		token, contact, err := guard.Authorize(ctx, state, code)
 		if err != nil {
 			debug.Printf("callback: %v", err)
@@ -104,7 +103,7 @@ func protect(next http.Handler) http.HandlerFunc {
 
 type privateFunc func(http.ResponseWriter, *http.Request, *Session)
 
-// once authenticated, the Contact is inside
+// once authorized, the Contact is inside
 func inside(w http.ResponseWriter, r *http.Request, s *Session) {
 	htdocs.ExecuteTemplate(w, "inside.html", s)
 }
