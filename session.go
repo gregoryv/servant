@@ -43,7 +43,7 @@ func existingSession(r *http.Request) Session {
 	return sessions[ck.Value]
 }
 
-func newSession(state string, t *oauth2.Token, u *htsec.User) {
+func newSession(state string, t *oauth2.Token, u *htsec.Contact) {
 	// cache the session
 	session := Session{
 		Token: t,

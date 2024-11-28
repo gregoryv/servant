@@ -5,8 +5,6 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-
-	"golang.org/x/oauth2"
 )
 
 func NewSecure() *Secure {
@@ -60,18 +58,3 @@ func (s *Secure) AuthService(name string) (*Auth, error) {
 var notFound = fmt.Errorf("not found")
 
 // ----------------------------------------
-
-type Auth struct {
-	// Used for the oauth2 flow
-	*oauth2.Config
-
-	// Used to read user information once authenticated
-	ReadUser ReadUserFunc
-}
-
-type User struct {
-	Email string
-	Name  string
-}
-
-type ReadUserFunc = func(token *oauth2.Token) (*User, error)

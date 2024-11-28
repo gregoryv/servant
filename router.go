@@ -74,13 +74,13 @@ func callback(sec *htsec.Secure) http.HandlerFunc {
 			return
 		}
 		// get user information from the Auth service
-		user, err := auth.ReadUser(token)
+		contact, err := auth.Contact(token)
 		if err != nil {
-			debug.Printf("callback readUser: %v", err)
+			debug.Printf("callback Contact: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
-		newSession(state, token, user)
+		newSession(state, token, contact)
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
