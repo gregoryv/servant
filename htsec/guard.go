@@ -17,7 +17,7 @@ import (
 func NewGuard() *Guard {
 	s := Guard{
 		PrivateKey: make([]byte, 32),
-		src:        make(map[string]*Gate),
+		gates:      make(map[string]*Gate),
 	}
 	_, _ = rand.Read(s.PrivateKey)
 	return &s
@@ -25,7 +25,7 @@ func NewGuard() *Guard {
 
 type Guard struct {
 	PrivateKey []byte
-	src        map[string]*Gate
+	gates      map[string]*Gate
 }
 
 // Include authorization service. It's name will be the significant
@@ -34,7 +34,7 @@ type Guard struct {
 func (s *Guard) Include(gates ...*Gate) {
 	for _, gate := range gates {
 		name := domainName(gate.Endpoint.AuthURL)
-		s.src[name] = gate
+		s.gates[name] = gate
 	}
 }
 
@@ -47,10 +47,11 @@ func domainName(uri string) string {
 	return parts[len(parts)-2]
 }
 
-// Names returns included authorization service names.
+// Names returns names of included gates. The name is, e.g. for
+// github.com "github".
 func (s *Guard) Names() []string {
-	res := make([]string, 0, len(s.src))
-	for name, _ := range s.src {
+	res := make([]string, 0, len(s.gates))
+	for name, _ := range s.gates {
 		res = append(res, name)
 	}
 	sort.Strings(res)
@@ -71,7 +72,7 @@ func (s *Guard) WhereIs(use string) (string, error) {
 
 // AuthService returns named service if included, error if not found.
 func (s *Guard) Gate(name string) (*Gate, error) {
-	a, found := s.src[name]
+	a, found := s.gates[name]
 	if !found {
 		err := fmt.Errorf("Secure.AuthService %v: %w", name, notFound)
 		return nil, err
