@@ -1,9 +1,18 @@
 package servant
 
-import "github.com/gregoryv/servant/htsec"
+import (
+	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/servant/htsec/github"
+	"github.com/gregoryv/servant/htsec/google"
+)
 
 func NewSystem() *System {
-	return &System{}
+	return &System{
+		security: htsec.NewGuard(
+			github.Default(),
+			google.Default(),
+		),
+	}
 }
 
 // System carries domain logic which is exposed via a [http.Handler]
