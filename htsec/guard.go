@@ -14,10 +14,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func NewGuard() *Guard {
+func NewGuard(gates ...*Gate) *Guard {
 	s := Guard{
 		PrivateKey: make([]byte, 32),
 		gates:      make(map[string]*Gate),
+	}
+	for _, gate := range gates {
+		name := domainName(gate.Endpoint.AuthURL)
+		s.gates[name] = gate
 	}
 	_, _ = rand.Read(s.PrivateKey)
 	return &s
@@ -26,16 +30,6 @@ func NewGuard() *Guard {
 type Guard struct {
 	PrivateKey []byte
 	gates      map[string]*Gate
-}
-
-// Include authorization service. It's name will be the significant
-// part of the AuthURL, e.g. for http://example.com/ the name will be
-// example.
-func (s *Guard) Include(gates ...*Gate) {
-	for _, gate := range gates {
-		name := domainName(gate.Endpoint.AuthURL)
-		s.gates[name] = gate
-	}
 }
 
 func domainName(uri string) string {
@@ -49,7 +43,7 @@ func domainName(uri string) string {
 
 // Names returns names of included gates. The name is, e.g. for
 // github.com "github".
-func (s *Guard) Names() []string {
+func (s *Guard) GateNames() []string {
 	res := make([]string, 0, len(s.gates))
 	for name, _ := range s.gates {
 		res = append(res, name)
@@ -59,7 +53,7 @@ func (s *Guard) Names() []string {
 }
 
 // FindGate returns url to the gate.
-func (s *Guard) FindGate(name string) (string, error) {
+func (s *Guard) GateURL(name string) (string, error) {
 	svc, err := s.gate(name)
 	if err != nil {
 		return "", err
