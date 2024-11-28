@@ -78,3 +78,15 @@ func (s *Guard) parseUse(state string) string {
 	}
 	return state[:i]
 }
+
+func (s *Guard) WhereIs(use string) (string, error) {
+	svc, err := s.Gate(use)
+	if err != nil {
+		return "", err
+	}
+	state, err := s.NewState(use)
+	if err != nil {
+		return "", err
+	}
+	return svc.AuthCodeURL(state), nil
+}

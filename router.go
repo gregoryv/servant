@@ -38,20 +38,13 @@ func frontpage() http.HandlerFunc {
 
 func login(sec *htauth.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		use := r.URL.Query().Get("use")
-		svc, err := sec.Gate(use)
+		gate := r.URL.Query().Get("use")
+		url, err := sec.WhereIs(gate)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		state, err := sec.NewState(use)
-		if err != nil {
-			debug.Print(err)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-		url := svc.AuthCodeURL(state)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
