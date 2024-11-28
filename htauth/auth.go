@@ -6,7 +6,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type Auth struct {
+type AuthService struct {
 	// Used for the oauth2 flow
 	*oauth2.Config
 
