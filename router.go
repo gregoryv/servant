@@ -36,7 +36,7 @@ func frontpage() http.HandlerFunc {
 	}
 }
 
-func login(sec *htauth.Secure) http.HandlerFunc {
+func login(sec *htauth.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		use := r.URL.Query().Get("use")
 		svc, err := sec.AuthService(use)
@@ -56,7 +56,7 @@ func login(sec *htauth.Secure) http.HandlerFunc {
 	}
 }
 
-func callback(sec *htauth.Secure) http.HandlerFunc {
+func callback(sec *htauth.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state := r.FormValue("state")
 		code := r.FormValue("code")

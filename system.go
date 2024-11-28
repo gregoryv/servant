@@ -9,8 +9,8 @@ func NewSystem() *System {
 // System carries domain logic which is exposed via a [http.Handler]
 // using [NewRouter].
 type System struct {
-	security *htauth.Secure
+	security *htauth.Guard
 }
 
-func (sys *System) SetSecurity(v *htauth.Secure) { sys.security = v }
-func (sys *System) Security() *htauth.Secure     { return sys.security }
+func (sys *System) SetSecurity(v *htauth.Guard) { sys.security = v }
+func (sys *System) Security() *htauth.Guard     { return sys.security }

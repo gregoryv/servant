@@ -13,7 +13,7 @@ import (
 )
 
 // NewState returns a string use.RANDOM.SIGNATURE using som private
-func (s *Secure) NewState(use string) (string, error) {
+func (s *Guard) NewState(use string) (string, error) {
 	// see https://stackoverflow.com/questions/26132066/\
 	//   what-is-the-purpose-of-the-state-parameter-in-oauth-authorization-request
 	randomBytes := make([]byte, 32)
@@ -27,7 +27,7 @@ func (s *Secure) NewState(use string) (string, error) {
 	return use + "." + random + "." + signature, nil
 }
 
-func (s *Secure) Authorize(ctx context.Context, state, code string) (*oauth2.Token, *Contact, error) {
+func (s *Guard) Authorize(ctx context.Context, state, code string) (*oauth2.Token, *Contact, error) {
 	if err := s.verify(state); err != nil {
 		return nil, nil, err
 	}
@@ -52,7 +52,7 @@ func (s *Secure) Authorize(ctx context.Context, state, code string) (*oauth2.Tok
 }
 
 // verify USE.RANDOM.SIGNATURE
-func (s *Secure) verify(state string) error {
+func (s *Guard) verify(state string) error {
 	parts := strings.Split(state, ".")
 	if len(parts) != 3 {
 		return fmt.Errorf("state: invalid format")
@@ -64,14 +64,14 @@ func (s *Secure) verify(state string) error {
 	return nil
 }
 
-func (s *Secure) sign(random string) string {
+func (s *Guard) sign(random string) string {
 	hash := sha256.New()
 	hash.Write([]byte(random))
 	hash.Write(s.PrivateKey)
 	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }
 
-func (s *Secure) parseUse(state string) string {
+func (s *Guard) parseUse(state string) string {
 	i := strings.Index(state, ".")
 	if i < 0 {
 		return ""

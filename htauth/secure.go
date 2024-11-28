@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-func NewSecure() *Secure {
-	s := Secure{
+func NewGuard() *Guard {
+	s := Guard{
 		PrivateKey: make([]byte, 32),
 		src:        make(map[string]*AuthService),
 	}
@@ -17,7 +17,7 @@ func NewSecure() *Secure {
 	return &s
 }
 
-type Secure struct {
+type Guard struct {
 	PrivateKey []byte
 	src        map[string]*AuthService
 }
@@ -25,7 +25,7 @@ type Secure struct {
 // Include authorization service. It's name will be the significant
 // part of the AuthURL, e.g. for http://example.com/ the name will be
 // example.
-func (s *Secure) Include(a *AuthService) {
+func (s *Guard) Include(a *AuthService) {
 	name := domainName(a.Endpoint.AuthURL)
 	s.src[name] = a
 }
@@ -40,7 +40,7 @@ func domainName(uri string) string {
 }
 
 // Names returns included authorization service names.
-func (s *Secure) Names() []string {
+func (s *Guard) Names() []string {
 	res := make([]string, 0, len(s.src))
 	for name, _ := range s.src {
 		res = append(res, name)
@@ -50,7 +50,7 @@ func (s *Secure) Names() []string {
 }
 
 // AuthService returns named service if included, error if not found.
-func (s *Secure) AuthService(name string) (*AuthService, error) {
+func (s *Guard) AuthService(name string) (*AuthService, error) {
 	a, found := s.src[name]
 	if !found {
 		err := fmt.Errorf("Secure.AuthService %v: %w", name, notFound)

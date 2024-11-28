@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	sec := htauth.NewSecure()
+	sec := htauth.NewGuard()
 	sec.Include(&htauth.AuthService{
 		Config: &oauth2.Config{
 			RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),
