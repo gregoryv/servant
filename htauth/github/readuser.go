@@ -8,8 +8,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func ReadUser(c *http.Client) htauth.ReadUserFunc {
-	return func(token *oauth2.Token) (*htauth.User, error) {
+func Contact(c *http.Client) htauth.ContactFunc {
+	return func(token *oauth2.Token) (*htauth.Contact, error) {
 		r, _ := http.NewRequest(
 			"GET", "https://api.github.com/user", nil,
 		)
@@ -20,7 +20,7 @@ func ReadUser(c *http.Client) htauth.ReadUserFunc {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		var u htauth.User
+		var u htauth.Contact
 		if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
 			return nil, err
 		}

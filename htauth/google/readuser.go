@@ -9,8 +9,8 @@ import (
 	"google.golang.org/api/people/v1"
 )
 
-func ReadUser(config *oauth2.Config) htauth.ReadUserFunc {
-	return func(token *oauth2.Token) (*htauth.User, error) {
+func Contact(config *oauth2.Config) htauth.ContactFunc {
+	return func(token *oauth2.Token) (*htauth.Contact, error) {
 		ctx := context.Background()
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token.AccessToken},
@@ -31,7 +31,7 @@ func ReadUser(config *oauth2.Config) htauth.ReadUserFunc {
 			return nil, err
 		}
 
-		var u htauth.User
+		var u htauth.Contact
 		if len(profile.EmailAddresses) > 0 {
 			u.Email = profile.EmailAddresses[0].Value
 		}

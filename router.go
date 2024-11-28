@@ -111,7 +111,7 @@ func protect(next http.Handler) http.HandlerFunc {
 
 type privateFunc func(http.ResponseWriter, *http.Request, *Session)
 
-// once authenticated, the user is inside
+// once authenticated, the Contact is inside
 func inside(w http.ResponseWriter, r *http.Request, s *Session) {
 	htdocs.ExecuteTemplate(w, "inside.html", s)
 }
