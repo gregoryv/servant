@@ -7,11 +7,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"net/http"
 	"net/url"
 	"sort"
 	"strings"
-
-	"golang.org/x/oauth2"
 )
 
 func NewGuard(gates ...*Gate) *Guard {
@@ -92,28 +91,35 @@ func (s *Guard) newState(use string) (string, error) {
 	return use + "." + random + "." + signature, nil
 }
 
-func (s *Guard) Authorize(ctx context.Context, state, code string) (*oauth2.Token, *Contact, error) {
+func (s *Guard) Authorize(ctx context.Context, r *http.Request) (*Slip, error) {
+	state := r.FormValue("state")
+	code := r.FormValue("code")
 	if err := s.verify(state); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	// which auth service was used
 	auth, err := s.gate(s.parseUse(state))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	// get the token
 	token, err := auth.Exchange(ctx, code)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	client := auth.Client(ctx, token)
 	// get user information from the Auth service
 	contact, err := auth.Contact(client)
 	if err != nil {
-		return token, nil, err
+		return nil, err
 	}
-	return token, contact, err
+	slip := Slip{
+		State:   state,
+		Token:   token,
+		Contact: contact,
+	}
+	return &slip, nil
 }
 
 // verify USE.RANDOM.SIGNATURE

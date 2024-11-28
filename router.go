@@ -50,21 +50,19 @@ func login(guard *htsec.Guard) http.HandlerFunc {
 
 func callback(guard *htsec.Guard) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		state := r.FormValue("state")
-		code := r.FormValue("code")
 		ctx := r.Context()
-		token, contact, err := guard.Authorize(ctx, state, code)
+		slip, err := guard.Authorize(ctx, r)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 
-		newSession(state, token, contact)
+		newSession(slip)
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
-		cookie := newCookie(state)
+		cookie := newCookie(slip.State)
 		http.SetCookie(w, cookie)
 		m := map[string]string{
 			"Location": "/inside",

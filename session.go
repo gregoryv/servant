@@ -43,14 +43,14 @@ func existingSession(r *http.Request) Session {
 	return sessions[ck.Value]
 }
 
-func newSession(state string, t *oauth2.Token, u *htsec.Contact) {
+func newSession(slip *htsec.Slip) {
 	// cache the session
 	session := Session{
-		Token: t,
-		Name:  u.Name,
-		Email: u.Email,
+		Token: slip.Token,
+		Name:  slip.Contact.Name,
+		Email: slip.Contact.Email,
 	}
-	sessions[state] = session
+	sessions[slip.State] = session
 	debug.Println(session.String())
 }
 
