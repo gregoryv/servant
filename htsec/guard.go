@@ -58,20 +58,21 @@ func (s *Guard) Names() []string {
 	return res
 }
 
-func (s *Guard) WhereIs(use string) (string, error) {
-	svc, err := s.Gate(use)
+// FindGate returns url to the gate.
+func (s *Guard) FindGate(name string) (string, error) {
+	svc, err := s.gate(name)
 	if err != nil {
 		return "", err
 	}
-	state, err := s.newState(use)
+	state, err := s.newState(name)
 	if err != nil {
 		return "", err
 	}
 	return svc.AuthCodeURL(state), nil
 }
 
-// AuthService returns named service if included, error if not found.
-func (s *Guard) Gate(name string) (*Gate, error) {
+// Gate returns named service if included, error if not found.
+func (s *Guard) gate(name string) (*Gate, error) {
 	a, found := s.gates[name]
 	if !found {
 		err := fmt.Errorf("Secure.AuthService %v: %w", name, notFound)
@@ -102,7 +103,7 @@ func (s *Guard) Authorize(ctx context.Context, state, code string) (*oauth2.Toke
 		return nil, nil, err
 	}
 	// which auth service was used
-	auth, err := s.Gate(s.parseUse(state))
+	auth, err := s.gate(s.parseUse(state))
 	if err != nil {
 		return nil, nil, err
 	}
