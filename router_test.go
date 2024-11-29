@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/htsec"
 )
 
 func Test_NewRouter_GET(t *testing.T) {

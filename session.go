@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/htsec"
 	"golang.org/x/oauth2"
 )
 

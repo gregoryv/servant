@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gregoryv/htlog"
-	"github.com/gregoryv/servant/htsec"
+	"github.com/gregoryv/htsec"
 )
 
 func NewRouter(sys *System) http.HandlerFunc {

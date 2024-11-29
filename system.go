@@ -1,9 +1,9 @@
 package servant
 
 import (
-	"github.com/gregoryv/servant/htsec"
-	"github.com/gregoryv/servant/htsec/github"
-	"github.com/gregoryv/servant/htsec/google"
+	"github.com/gregoryv/htsec"
+	"github.com/gregoryv/htsec/github"
+	"github.com/gregoryv/htsec/google"
 )
 
 func NewSystem() *System {
