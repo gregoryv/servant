@@ -10,7 +10,7 @@ import (
 	"golang.org/x/oauth2/endpoints"
 )
 
-func Default() *htsec.Guard {
+func Guard() *htsec.Guard {
 	return &htsec.Guard{
 		Config: &oauth2.Config{
 			RedirectURL:  os.Getenv("OAUTH_GITHUB_REDIRECT_URI"),

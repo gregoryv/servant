@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/people/v1"
 )
 
-func Default() *htsec.Guard {
+func Guard() *htsec.Guard {
 	return &htsec.Guard{
 		Config: &oauth2.Config{
 			RedirectURL:  os.Getenv("OAUTH_GOOGLE_REDIRECT_URI"),

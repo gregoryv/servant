@@ -9,8 +9,8 @@ import (
 func NewSystem() *System {
 	return &System{
 		security: htsec.NewDetail(
-			github.Default(),
-			google.Default(),
+			github.Guard(),
+			google.Guard(),
 		),
 	}
 }
