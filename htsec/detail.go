@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"sort"
 	"strings"
 )
 
@@ -38,17 +37,6 @@ func domainName(uri string) string {
 	}
 	parts := strings.Split(v.Hostname(), ".")
 	return parts[len(parts)-2]
-}
-
-// Names returns names of included gates. The name is, e.g. for
-// github.com "github".
-func (s *Detail) GateNames() []string {
-	res := make([]string, 0, len(s.gates))
-	for name, _ := range s.gates {
-		res = append(res, name)
-	}
-	sort.Strings(res)
-	return res
 }
 
 // FindGate returns url to the gate.
