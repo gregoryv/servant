@@ -12,14 +12,14 @@ import (
 	"strings"
 )
 
-func NewDetail(gates ...*Gate) *Detail {
+func NewDetail(guards ...*Guard) *Detail {
 	s := Detail{
 		PrivateKey: make([]byte, 32),
-		gates:      make(map[string]*Gate),
+		guards:     make(map[string]*Guard),
 	}
-	for _, gate := range gates {
+	for _, gate := range guards {
 		name := domainName(gate.Endpoint.AuthURL)
-		s.gates[name] = gate
+		s.guards[name] = gate
 	}
 	_, _ = rand.Read(s.PrivateKey)
 	return &s
@@ -27,7 +27,7 @@ func NewDetail(gates ...*Gate) *Detail {
 
 type Detail struct {
 	PrivateKey []byte
-	gates      map[string]*Gate
+	guards     map[string]*Guard
 }
 
 func domainName(uri string) string {
@@ -39,8 +39,8 @@ func domainName(uri string) string {
 	return parts[len(parts)-2]
 }
 
-// FindGate returns url to the gate.
-func (s *Detail) GateURL(name string) (string, error) {
+// GuardURL returns url to the gate.
+func (s *Detail) GuardURL(name string) (string, error) {
 	svc, err := s.gate(name)
 	if err != nil {
 		return "", err
@@ -53,8 +53,8 @@ func (s *Detail) GateURL(name string) (string, error) {
 }
 
 // Gate returns named service if included, error if not found.
-func (s *Detail) gate(name string) (*Gate, error) {
-	a, found := s.gates[name]
+func (s *Detail) gate(name string) (*Guard, error) {
+	a, found := s.guards[name]
 	if !found {
 		err := fmt.Errorf("Secure.AuthService %v: %w", name, notFound)
 		return nil, err
