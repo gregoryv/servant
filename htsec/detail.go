@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-func NewGuard(gates ...*Gate) *Guard {
-	s := Guard{
+func NewDetail(gates ...*Gate) *Detail {
+	s := Detail{
 		PrivateKey: make([]byte, 32),
 		gates:      make(map[string]*Gate),
 	}
@@ -26,7 +26,7 @@ func NewGuard(gates ...*Gate) *Guard {
 	return &s
 }
 
-type Guard struct {
+type Detail struct {
 	PrivateKey []byte
 	gates      map[string]*Gate
 }
@@ -42,7 +42,7 @@ func domainName(uri string) string {
 
 // Names returns names of included gates. The name is, e.g. for
 // github.com "github".
-func (s *Guard) GateNames() []string {
+func (s *Detail) GateNames() []string {
 	res := make([]string, 0, len(s.gates))
 	for name, _ := range s.gates {
 		res = append(res, name)
@@ -52,7 +52,7 @@ func (s *Guard) GateNames() []string {
 }
 
 // FindGate returns url to the gate.
-func (s *Guard) GateURL(name string) (string, error) {
+func (s *Detail) GateURL(name string) (string, error) {
 	svc, err := s.gate(name)
 	if err != nil {
 		return "", err
@@ -65,7 +65,7 @@ func (s *Guard) GateURL(name string) (string, error) {
 }
 
 // Gate returns named service if included, error if not found.
-func (s *Guard) gate(name string) (*Gate, error) {
+func (s *Detail) gate(name string) (*Gate, error) {
 	a, found := s.gates[name]
 	if !found {
 		err := fmt.Errorf("Secure.AuthService %v: %w", name, notFound)
@@ -77,7 +77,7 @@ func (s *Guard) gate(name string) (*Gate, error) {
 var notFound = fmt.Errorf("not found")
 
 // NewState returns a string use.RANDOM.SIGNATURE using som private
-func (s *Guard) newState(use string) (string, error) {
+func (s *Detail) newState(use string) (string, error) {
 	// see https://stackoverflow.com/questions/26132066/\
 	//   what-is-the-purpose-of-the-state-parameter-in-oauth-authorization-request
 	randomBytes := make([]byte, 32)
@@ -91,7 +91,7 @@ func (s *Guard) newState(use string) (string, error) {
 	return use + "." + random + "." + signature, nil
 }
 
-func (s *Guard) Authorize(ctx context.Context, r *http.Request) (*Slip, error) {
+func (s *Detail) Authorize(ctx context.Context, r *http.Request) (*Slip, error) {
 	state := r.FormValue("state")
 	code := r.FormValue("code")
 	if err := s.verify(state); err != nil {
@@ -123,7 +123,7 @@ func (s *Guard) Authorize(ctx context.Context, r *http.Request) (*Slip, error) {
 }
 
 // verify USE.RANDOM.SIGNATURE
-func (s *Guard) verify(state string) error {
+func (s *Detail) verify(state string) error {
 	parts := strings.Split(state, ".")
 	if len(parts) != 3 {
 		return fmt.Errorf("state: invalid format")
@@ -135,14 +135,14 @@ func (s *Guard) verify(state string) error {
 	return nil
 }
 
-func (s *Guard) sign(random string) string {
+func (s *Detail) sign(random string) string {
 	hash := sha256.New()
 	hash.Write([]byte(random))
 	hash.Write(s.PrivateKey)
 	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }
 
-func (s *Guard) parseUse(state string) string {
+func (s *Detail) parseUse(state string) string {
 	i := strings.Index(state, ".")
 	if i < 0 {
 		return ""

@@ -8,7 +8,7 @@ import (
 
 func NewSystem() *System {
 	return &System{
-		security: htsec.NewGuard(
+		security: htsec.NewDetail(
 			github.Default(),
 			google.Default(),
 		),
@@ -18,8 +18,8 @@ func NewSystem() *System {
 // System carries domain logic which is exposed via a [http.Handler]
 // using [NewRouter].
 type System struct {
-	security *htsec.Guard
+	security *htsec.Detail
 }
 
-func (sys *System) SetSecurity(v *htsec.Guard) { sys.security = v }
-func (sys *System) Security() *htsec.Guard     { return sys.security }
+func (sys *System) SetSecurity(v *htsec.Detail) { sys.security = v }
+func (sys *System) Security() *htsec.Detail     { return sys.security }

@@ -8,12 +8,12 @@ import (
 )
 
 func NewRouter(sys *System) http.HandlerFunc {
-	guard := sys.Security()
+	sec := sys.Security()
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", frontpage())
-	mx.Handle("/login", login(guard))
+	mx.Handle("/login", login(sec))
 	// reuse the same callback endpoint
-	mx.Handle("/oauth/redirect", callback(guard))
+	mx.Handle("/oauth/redirect", callback(sec))
 
 	// everything else is private
 	mx.Handle("/", private())
@@ -35,10 +35,10 @@ func frontpage() http.HandlerFunc {
 	}
 }
 
-func login(guard *htsec.Guard) http.HandlerFunc {
+func login(sec *htsec.Detail) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		gate := r.URL.Query().Get("use")
-		url, err := guard.GateURL(gate)
+		url, err := sec.GateURL(gate)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -48,10 +48,10 @@ func login(guard *htsec.Guard) http.HandlerFunc {
 	}
 }
 
-func callback(guard *htsec.Guard) http.HandlerFunc {
+func callback(sec *htsec.Detail) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		slip, err := guard.Authorize(ctx, r)
+		slip, err := sec.Authorize(ctx, r)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
