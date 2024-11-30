@@ -19,6 +19,7 @@ func newCookie(state string) *http.Cookie {
 		Path:     "/",
 		Expires:  time.Now().Add(15 * time.Minute),
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 	}
 }
 
