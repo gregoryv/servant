@@ -11,10 +11,10 @@ import (
 // Read more about security settings
 // https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps#pattern-bff-cookie-security
 
-func newCookie(state string) *http.Cookie {
+func newCookie(value string) *http.Cookie {
 	return &http.Cookie{
 		Name:     cookieName, // todo __Host-
-		Value:    state,
+		Value:    value,
 		Path:     "/",
 		Expires:  time.Now().Add(15 * time.Minute),
 		HttpOnly: true,
