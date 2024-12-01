@@ -25,6 +25,8 @@ func NewRouter(sys *System) http.HandlerFunc {
 	return logRequests(mx)
 }
 
+// todo use a view model
+
 func frontpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		htdocs.ExecuteTemplate(w, "index.html", nil)
