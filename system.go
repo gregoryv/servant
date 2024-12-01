@@ -30,6 +30,18 @@ func (sys *System) SetSecurity(v *htsec.Detail) { sys.sec = v }
 func (sys *System) Security() *htsec.Detail     { return sys.sec }
 
 // todo return own Slip or maybe session
-func (sys *System) Authorize(ctx context.Context, r *http.Request) (*htsec.Slip, error) {
-	return sys.sec.Authorize(ctx, r)
+func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, error) {
+	slip, err := sys.sec.Authorize(ctx, r)
+	if err != nil {
+		return nil, err
+	}
+	s := Session{
+		State: slip.State,
+		Token: slip.Token,
+		Name:  slip.Contact.Name,
+		Email: slip.Contact.Email,
+		dest:  slip.Dest(),
+	}
+	SetSession(slip.State, &s)
+	return &s, err
 }

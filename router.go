@@ -68,26 +68,19 @@ func enter(sec *htsec.Detail) http.HandlerFunc {
 func callback(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		slip, err := sys.Authorize(ctx, r)
+		s, err := sys.Authorize(ctx, r)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
 			return
 		}
 
-		s := Session{
-			Token: slip.Token,
-			Name:  slip.Contact.Name,
-			Email: slip.Contact.Email,
-		}
-		SetSession(slip.State, &s)
-
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
-		cookie := NewCookie(slip.State)
+		cookie := NewCookie(s.State)
 		http.SetCookie(w, cookie)
 		m := map[string]string{
-			"Location": slip.Dest(), // default page after login
+			"Location": s.dest, // default page after login
 		}
 
 		htdocs.ExecuteTemplate(w, "redirect.html", m)

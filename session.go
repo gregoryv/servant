@@ -46,9 +46,11 @@ var sessions = make(map[string]*Session)
 
 // Once authorized the session contains the information.
 type Session struct {
+	State string
 	Token *oauth2.Token
 	Name  string
 	Email string
+	dest  string
 }
 
 func (s *Session) String() string {
