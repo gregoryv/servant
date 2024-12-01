@@ -31,6 +31,14 @@ type System struct {
 	sessions map[string]*Session
 }
 
+func (sys *System) Shutdown() (chan struct{}, func()) {
+	c := make(chan struct{})
+	return c, func() {
+		debug.Print("########## shutting down")
+		close(c)
+	}
+}
+
 func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, error) {
 	slip, err := sys.sec.Authorize(ctx, r)
 	if err != nil {
