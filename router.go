@@ -38,7 +38,7 @@ func frontpage() http.HandlerFunc {
 func login(sec *htsec.Detail) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		guardname := r.URL.Query().Get("use")
-		url, err := sec.Guard(guardname).URL()
+		url, err := sec.GuardURL(guardname)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
