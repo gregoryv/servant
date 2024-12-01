@@ -36,10 +36,10 @@ func sessionValid(r *http.Request) error {
 	return nil
 }
 
-func existingSession(r *http.Request) Session {
+func existingSession(r *http.Request) *Session {
 	ck, err := r.Cookie(cookieName)
 	if err != nil {
-		return noSession
+		return nil
 	}
 	return sessions[ck.Value]
 }
@@ -51,16 +51,12 @@ func newSession(slip *htsec.Slip) {
 		Name:  slip.Contact.Name,
 		Email: slip.Contact.Email,
 	}
-	sessions[slip.State] = session
+	sessions[slip.State] = &session
 	debug.Println(session.String())
 }
 
 // token to name
-var sessions = make(map[string]Session)
-
-var noSession = Session{
-	Name: "anonymous",
-}
+var sessions = make(map[string]*Session)
 
 // Once authorized the session contains the information.
 type Session struct {

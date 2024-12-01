@@ -7,12 +7,14 @@ import (
 )
 
 func NewSystem() *System {
-	return &System{
+	s := &System{
 		security: htsec.NewDetail(
 			github.Guard(),
 			google.Guard(),
 		),
 	}
+	s.security.PrivateKey = []byte("my fixed private key")
+	return s
 }
 
 // System carries domain logic which is exposed via a [http.Handler]

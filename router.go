@@ -10,7 +10,7 @@ import (
 func NewRouter(sys *System) http.HandlerFunc {
 	sec := sys.Security()
 	mx := http.NewServeMux()
-	mx.Handle("/{$}", frontpage())
+	mx.Handle("/{$}", home())
 	mx.Handle("/login", login(sec))
 	mx.Handle("/enter", enter(sec))
 	// reuse the same callback endpoint
@@ -26,9 +26,11 @@ func NewRouter(sys *System) http.HandlerFunc {
 
 // todo use a view model
 
-func frontpage() http.HandlerFunc {
+func home() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		htdocs.ExecuteTemplate(w, "index.html", nil)
+		m := NewViewModel()
+		m.SetSession(existingSession(r))
+		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
 }
 
@@ -91,11 +93,15 @@ func callback(sec *htsec.Detail) http.HandlerFunc {
 
 // once authorized, the Contact is inside
 func inside(w http.ResponseWriter, r *http.Request, s *Session) {
-	htdocs.ExecuteTemplate(w, "inside.html", s)
+	m := NewViewModel()
+	m.SetSession(s)
+	htdocs.ExecuteTemplate(w, "inside.html", m)
 }
 
 func settings(w http.ResponseWriter, r *http.Request, s *Session) {
-	htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
+	m := NewViewModel()
+	m.SetSession(s)
+	htdocs.ExecuteTemplate(w, "settings.html", m)
 }
 
 func private(mx *http.ServeMux) func(string, privateFunc) {
@@ -111,7 +117,7 @@ func private(mx *http.ServeMux) func(string, privateFunc) {
 				return
 			}
 			s := existingSession(r)
-			next(w, r, &s)
+			next(w, r, s)
 		})
 	}
 }
@@ -124,4 +130,84 @@ func logRequests(next http.Handler) http.HandlerFunc {
 		Clean:   htlog.QueryHide("access_token"),
 	}
 	return log.Use(next)
+}
+
+// ----------------------------------------
+
+func NewViewModel() *ViewModel {
+	return &ViewModel{
+		Nav: &Nav{
+			Home: Link{
+				Href: "/",
+				Text: "Home",
+			},
+			Inside: Link{
+				Private: true,
+				Href:    "/inside",
+				Text:    "Inside",
+			},
+			Settings: Link{
+				Private: true,
+				Href:    "/settings",
+				Text:    "Settings",
+			},
+			Login: &Link{
+				Href: "/login",
+				Text: "Login",
+			},
+		},
+		Logins: []GuardLink{
+			{
+				Img:  "/static/github.svg",
+				Href: "/enter?use=github",
+				Text: "Github",
+			},
+			{
+				Img:  "/static/google.svg",
+				Href: "/enter?use=google",
+				Text: "Google",
+			},
+		},
+	}
+}
+
+type ViewModel struct {
+	*Nav
+	Logins  []GuardLink
+	Session *Session
+}
+
+func (m *ViewModel) SetSession(s *Session) {
+	m.Session = s
+	m.Nav.SetSession(s)
+}
+
+type Nav struct {
+	Home     Link
+	Inside   Link
+	Settings Link
+	Login    *Link
+}
+
+func (n *Nav) SetSession(s *Session) {
+	if s == nil {
+		return
+	}
+	// should it be hidden here? or should the template decide based
+	// on session
+	n.Login = nil
+	n.Inside.Private = false
+	n.Settings.Private = false
+}
+
+type Link struct {
+	Private bool
+	Href    string
+	Text    string
+}
+
+type GuardLink struct {
+	Img  string
+	Href string
+	Text string
 }

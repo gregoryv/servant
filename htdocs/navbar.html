@@ -1,13 +1,29 @@
 <style>
 nav ol { list-style-type: none }
-nav ol li { display: inline }
+nav ol li { display: inline; border-left: 1px solid #727272; padding: 0px 10px }
+nav ol li:first-child { border-left: 0px; padding-left: 0px }
+a.private { color: red }
 </style>
 
 <nav>
 <ol>
-<li><a href="/inside">Inside</a></li>
-<li>| <a href="/settings">Settings</a></li>
-<li>| <a href="/login">Login</a></li>
-<li>| {{.Name}}</li>
+{{ with .Nav.Home }}
+<li><a href="{{.Href}}" {{if .Private}}class="private"{{end}}>{{.Text}}</a></li>
+{{end}}
+
+{{ with .Nav.Inside }}
+<li><a href="{{.Href}}" {{if .Private}}class="private"{{end}}>{{.Text}}</a></li>
+{{end}}
+
+{{ with .Nav.Settings }}
+<li><a href="{{.Href}}" {{if .Private}}class="private"{{end}}>{{.Text}}</a></li>
+{{end}}
+
+{{ with .Nav.Login }}
+<li><a href="{{.Href}}" {{if .Private}}class="private"{{end}}>{{.Text}}</a></li>
+{{end}}
+
+
+{{if .Session}}<li>{{.Session.Name}}</li>{{end}}
 </ol>
 </nav>
