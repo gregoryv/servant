@@ -90,6 +90,15 @@ func private() http.Handler {
 	return protect(mx)
 }
 
+// once authorized, the Contact is inside
+func inside(w http.ResponseWriter, r *http.Request, s *Session) {
+	htdocs.ExecuteTemplate(w, "inside.html", s)
+}
+
+func settings(w http.ResponseWriter, r *http.Request, s *Session) {
+	htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
+}
+
 func withSession(mx *http.ServeMux) func(string, privateFunc) {
 	return func(pattern string, next privateFunc) {
 		mx.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
@@ -116,15 +125,6 @@ func protect(next http.Handler) http.HandlerFunc {
 }
 
 type privateFunc func(http.ResponseWriter, *http.Request, *Session)
-
-// once authorized, the Contact is inside
-func inside(w http.ResponseWriter, r *http.Request, s *Session) {
-	htdocs.ExecuteTemplate(w, "inside.html", s)
-}
-
-func settings(w http.ResponseWriter, r *http.Request, s *Session) {
-	htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
-}
 
 func logRequests(next http.Handler) http.HandlerFunc {
 	log := htlog.Middleware{
