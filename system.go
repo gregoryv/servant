@@ -13,15 +13,15 @@ func NewSystem() *System {
 			google.Guard(),
 		),
 	}
-	s.security.PrivateKey = []byte("my fixed private key")
+	s.sec.PrivateKey = []byte("my fixed private key")
 	return s
 }
 
 // System carries domain logic which is exposed via a [http.Handler]
 // using [NewRouter].
 type System struct {
-	security *htsec.Detail
+	sec *htsec.Detail
 }
 
-func (sys *System) SetSecurity(v *htsec.Detail) { sys.security = v }
-func (sys *System) Security() *htsec.Detail     { return sys.security }
+func (sys *System) SetSecurity(v *htsec.Detail) { sys.sec = v }
+func (sys *System) Security() *htsec.Detail     { return sys.sec }
