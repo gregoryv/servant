@@ -13,23 +13,4 @@ table { width: 120px; margin: auto }
 
 <h1>Frontpage</h1>
 
-Login using
-<br>
-<br>
-
-<table>
-<tr>
-<td>
-<img src="/static/github.svg" style="width:32px"/>
-</td>
-<td><a href="{{.PathLoginGithub}}">github</a></td>
-</tr>
-
-<tr>
-<td>
-<img src="/static/google.svg" style="width:32px"/>
-</td>
-<td><a href="{{.PathLoginGoogle}}">google</a></td>
-</tr>
-</table>
-
+{{ template "navbar.html" .}}

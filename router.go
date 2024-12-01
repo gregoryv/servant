@@ -13,6 +13,7 @@ func NewRouter(sys *System) http.HandlerFunc {
 	mx.Handle("/{$}", frontpage())
 	mx.HandleFunc("/favicon.ico", favicon)
 	mx.Handle("/login", login(sec))
+	mx.Handle("/enter", enter(sec))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
 	mx.Handle("/static/", http.FileServerFS(asset))
@@ -30,20 +31,26 @@ func favicon(w http.ResponseWriter, r *http.Request) {}
 
 func frontpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		htdocs.ExecuteTemplate(w, "index.html", nil)
+	}
+}
+
+func login(sec *htsec.Detail) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		m := map[string]string{
-			"PathLoginGithub": "/login?use=github",
-			"PathLoginGoogle": "/login?use=google",
+			"PathLoginGithub": "/enter?use=github",
+			"PathLoginGoogle": "/enter?use=google",
 		}
 		if v := r.URL.Query().Get("dest"); v != "" {
 			for k, _ := range m {
 				m[k] += "&dest=" + v
 			}
 		}
-		htdocs.ExecuteTemplate(w, "index.html", m)
+		htdocs.ExecuteTemplate(w, "login.html", m)
 	}
 }
 
-func login(sec *htsec.Detail) http.HandlerFunc {
+func enter(sec *htsec.Detail) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		guardname := r.URL.Query().Get("use")
 		// destination after authorized
@@ -101,7 +108,7 @@ func private(mx *http.ServeMux) func(string, privateFunc) {
 				debug.Printf("protect: %v", err)
 				m := map[string]string{
 					// page where user selects login
-					"Location": "/?dest=" + r.URL.String(),
+					"Location": "/login?dest=" + r.URL.String(),
 				}
 				htdocs.ExecuteTemplate(w, "redirect.html", m)
 				return
