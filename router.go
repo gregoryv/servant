@@ -27,7 +27,7 @@ func NewRouter(sys *System) http.HandlerFunc {
 func home() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := NewViewModel()
-		m.SetSession(existingSession(r))
+		m.SetSession(ExistingSession(r))
 		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
 }
@@ -119,7 +119,7 @@ func private(mx *http.ServeMux) func(string, privateFunc) {
 				htdocs.ExecuteTemplate(w, "redirect.html", m)
 				return
 			}
-			s := existingSession(r)
+			s := ExistingSession(r)
 			next(w, r, s)
 		})
 	}

@@ -35,7 +35,7 @@ func SessionValid(r *http.Request) error {
 
 const cookieName = "state"
 
-func existingSession(r *http.Request) *Session {
+func ExistingSession(r *http.Request) *Session {
 	ck, err := r.Cookie(cookieName)
 	if err != nil {
 		return nil
