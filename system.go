@@ -17,6 +17,7 @@ func NewSystem() *System {
 			github.Guard(),
 			google.Guard(),
 		),
+		sessions: make(map[string]*Session),
 	}
 	s.sec.PrivateKey = []byte("my fixed private key")
 	return s
@@ -26,6 +27,8 @@ func NewSystem() *System {
 // using [NewRouter].
 type System struct {
 	sec *htsec.Detail
+
+	sessions map[string]*Session
 }
 
 func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, error) {
@@ -40,7 +43,7 @@ func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, er
 		Email: slip.Contact.Email,
 		dest:  slip.Dest(),
 	}
-	SetSession(slip.State, &s)
+	sys.SetSession(slip.State, &s)
 	return &s, err
 }
 
@@ -64,12 +67,12 @@ func NewCookie(value string) *http.Cookie {
 	}
 }
 
-func SessionValid(r *http.Request) error {
+func (sys *System) SessionValid(r *http.Request) error {
 	state, err := r.Cookie(cookieName)
 	if err != nil {
 		return err
 	}
-	if _, found := sessions[state.Value]; !found {
+	if _, found := sys.sessions[state.Value]; !found {
 		return fmt.Errorf("missing session")
 	}
 	return nil
@@ -77,18 +80,15 @@ func SessionValid(r *http.Request) error {
 
 const cookieName = "state"
 
-func ExistingSession(r *http.Request) *Session {
+func (sys *System) ExistingSession(r *http.Request) *Session {
 	ck, err := r.Cookie(cookieName)
 	if err != nil {
 		return nil
 	}
-	return sessions[ck.Value]
+	return sys.sessions[ck.Value]
 }
 
-func SetSession(key string, s *Session) {
-	sessions[key] = s
+func (sys *System) SetSession(key string, s *Session) {
+	sys.sessions[key] = s
 	// todo save/restore sessions on restart
 }
-
-// state to session
-var sessions = make(map[string]*Session)

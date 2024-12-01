@@ -8,24 +8,24 @@ import (
 
 func NewRouter(sys *System) http.HandlerFunc {
 	mx := http.NewServeMux()
-	mx.Handle("/{$}", home())
+	mx.Handle("/{$}", home(sys))
 	mx.Handle("/login", login())
 	mx.Handle("/enter", enter(sys))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sys))
 	mx.Handle("/static/", http.FileServerFS(asset))
 
-	prv := private(mx)
+	prv := private(mx, sys)
 	prv("/inside", inside)
 	prv("/settings", settings)
 
 	return logRequests(mx)
 }
 
-func home() http.HandlerFunc {
+func home(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := NewViewModel()
-		m.SetSession(ExistingSession(r))
+		m.SetSession(sys.ExistingSession(r))
 		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
 }
@@ -98,10 +98,10 @@ func settings(w http.ResponseWriter, r *http.Request, s *Session) {
 	htdocs.ExecuteTemplate(w, "settings.html", m)
 }
 
-func private(mx *http.ServeMux) func(string, privateFunc) {
+func private(mx *http.ServeMux, sys *System) func(string, privateFunc) {
 	return func(pattern string, next privateFunc) {
 		mx.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
-			if err := SessionValid(r); err != nil {
+			if err := sys.SessionValid(r); err != nil {
 				debug.Printf("protect: %v", err)
 				m := map[string]string{
 					// page where user selects login
@@ -110,7 +110,7 @@ func private(mx *http.ServeMux) func(string, privateFunc) {
 				htdocs.ExecuteTemplate(w, "redirect.html", m)
 				return
 			}
-			s := ExistingSession(r)
+			s := sys.ExistingSession(r)
 			next(w, r, s)
 		})
 	}
