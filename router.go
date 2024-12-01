@@ -9,30 +9,30 @@ import (
 func NewRouter(sys *System) http.HandlerFunc {
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", home(sys))
-	mx.Handle("/login", login())
+	mx.Handle("/login", login(sys))
 	mx.Handle("/enter", enter(sys))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sys))
 	mx.Handle("/static/", http.FileServerFS(asset))
 
 	prv := private(mx, sys)
-	prv("/inside", inside)
-	prv("/settings", settings)
+	prv("/inside", inside(sys))
+	prv("/settings", settings(sys))
 
 	return logRequests(mx)
 }
 
 func home(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := NewViewModel()
+		m := NewViewModel(sys)
 		m.SetSession(sys.ExistingSession(r))
 		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
 }
 
-func login() http.HandlerFunc {
+func login(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := NewViewModel() // wip
+		m := NewViewModel(sys)
 		if v := r.URL.Query().Get("dest"); v != "" {
 			for i, _ := range m.Logins {
 				m.Logins[i].Href += "&dest=" + v
@@ -83,16 +83,20 @@ func callback(sys *System) http.HandlerFunc {
 }
 
 // once authorized, the Contact is inside
-func inside(w http.ResponseWriter, r *http.Request, s *Session) {
-	m := NewViewModel()
-	m.SetSession(s)
-	htdocs.ExecuteTemplate(w, "inside.html", m)
+func inside(sys *System) privateFunc {
+	return func(w http.ResponseWriter, r *http.Request, s *Session) {
+		m := NewViewModel(sys)
+		m.SetSession(s)
+		htdocs.ExecuteTemplate(w, "inside.html", m)
+	}
 }
 
-func settings(w http.ResponseWriter, r *http.Request, s *Session) {
-	m := NewViewModel()
-	m.SetSession(s)
-	htdocs.ExecuteTemplate(w, "settings.html", m)
+func settings(sys *System) privateFunc {
+	return func(w http.ResponseWriter, r *http.Request, s *Session) {
+		m := NewViewModel(sys)
+		m.SetSession(s)
+		htdocs.ExecuteTemplate(w, "settings.html", m)
+	}
 }
 
 func private(mx *http.ServeMux, sys *System) func(string, privateFunc) {
@@ -124,7 +128,7 @@ func logRequests(next http.Handler) http.HandlerFunc {
 
 // ----------------------------------------
 
-func NewViewModel() *ViewModel {
+func NewViewModel(sys *System) *ViewModel {
 	return &ViewModel{
 		Nav: &Nav{
 			Home: Link{
@@ -146,6 +150,7 @@ func NewViewModel() *ViewModel {
 				Text: "Login",
 			},
 		},
+		// should match what ever is configured in the system
 		Logins: []GuardLink{
 			{
 				Img:  "/static/github.svg",
