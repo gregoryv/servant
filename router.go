@@ -18,11 +18,7 @@ func NewRouter(sys *System) http.HandlerFunc {
 	// everything else is private
 	mx.Handle("/", private())
 
-	log := htlog.Middleware{
-		Println: debug.Println,
-		Clean:   htlog.QueryHide("access_token"),
-	}
-	return log.Use(mx)
+	return logRequests(mx)
 }
 
 func frontpage() http.HandlerFunc {
@@ -108,4 +104,12 @@ func inside(w http.ResponseWriter, r *http.Request, s *Session) {
 
 func settings(w http.ResponseWriter, r *http.Request, s *Session) {
 	htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
+}
+
+func logRequests(next http.Handler) http.HandlerFunc {
+	log := htlog.Middleware{
+		Println: debug.Println,
+		Clean:   htlog.QueryHide("access_token"),
+	}
+	return log.Use(next)
 }
