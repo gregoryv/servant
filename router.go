@@ -84,7 +84,7 @@ func callback(sec *htsec.Detail) http.HandlerFunc {
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.
-		cookie := newCookie(slip.State)
+		cookie := NewCookie(slip.State)
 		http.SetCookie(w, cookie)
 		m := map[string]string{
 			"Location": slip.Dest(), // default page after login

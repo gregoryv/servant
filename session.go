@@ -11,7 +11,7 @@ import (
 // Read more about security settings
 // https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps#pattern-bff-cookie-security
 
-func newCookie(value string) *http.Cookie {
+func NewCookie(value string) *http.Cookie {
 	return &http.Cookie{
 		Name:     cookieName, // todo __Host-
 		Value:    value,
