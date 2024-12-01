@@ -16,7 +16,6 @@ func NewRouter(sys *System) http.HandlerFunc {
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
 	mx.Handle("/static/", http.FileServerFS(asset))
-	mx.HandleFunc("/favicon.ico", favicon)
 
 	prv := private(mx)
 	prv("/inside", inside)
@@ -115,10 +114,6 @@ func private(mx *http.ServeMux) func(string, privateFunc) {
 			next(w, r, &s)
 		})
 	}
-}
-
-func favicon(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/static/favicon.ico", http.StatusSeeOther)
 }
 
 type privateFunc func(http.ResponseWriter, *http.Request, *Session)
