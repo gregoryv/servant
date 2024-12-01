@@ -17,7 +17,11 @@ func NewRouter(sys *System) http.HandlerFunc {
 	mx.Handle("/oauth/redirect", callback(sec))
 
 	// everything else is private
-	mx.Handle("/", private())
+
+	prv := private(mx)
+
+	prv("/inside", inside)
+	prv("/settings", settings)
 
 	return logRequests(mx)
 }
@@ -81,15 +85,6 @@ func callback(sec *htsec.Detail) http.HandlerFunc {
 	}
 }
 
-func private() http.Handler {
-	mx := http.NewServeMux()
-	handle := withSession(mx)
-
-	handle("/inside", inside)
-	handle("/settings", settings)
-	return protect(mx)
-}
-
 // once authorized, the Contact is inside
 func inside(w http.ResponseWriter, r *http.Request, s *Session) {
 	htdocs.ExecuteTemplate(w, "inside.html", s)
@@ -99,28 +94,21 @@ func settings(w http.ResponseWriter, r *http.Request, s *Session) {
 	htdocs.ExecuteTemplate(w, "settings.html", existingSession(r))
 }
 
-func withSession(mx *http.ServeMux) func(string, privateFunc) {
+func private(mx *http.ServeMux) func(string, privateFunc) {
 	return func(pattern string, next privateFunc) {
 		mx.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+			if err := sessionValid(r); err != nil {
+				debug.Printf("protect: %v", err)
+				m := map[string]string{
+					// page where user selects login
+					"Location": "/?dest=" + r.URL.String(),
+				}
+				htdocs.ExecuteTemplate(w, "redirect.html", m)
+				return
+			}
 			s := existingSession(r)
 			next(w, r, &s)
 		})
-	}
-}
-
-func protect(next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := sessionValid(r); err != nil {
-			debug.Printf("protect: %v", err)
-			m := map[string]string{
-				// page where user selects login
-				"Location": "/?dest=" + r.URL.String(),
-			}
-			htdocs.ExecuteTemplate(w, "redirect.html", m)
-			return
-		}
-
-		next.ServeHTTP(w, r)
 	}
 }
 

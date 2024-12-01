@@ -11,7 +11,7 @@ import (
 
 func init() {
 	htdocs = template.Must(
-		template.New("").Funcs(funcMap).ParseFS(asset, "htdocs/*"),
+		template.New("").Funcs(funcMap).ParseFS(asset, "htdocs/*.html"),
 	)
 }
 
@@ -20,7 +20,7 @@ var funcMap = template.FuncMap{
 	//"doX": func() string { return "x" },
 }
 
-//go:embed htdocs
+//go:embed htdocs static
 var asset embed.FS
 
 var debug = log.New(ioutil.Discard, "D ", log.LstdFlags|log.Lshortfile)
