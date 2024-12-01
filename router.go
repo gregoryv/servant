@@ -11,23 +11,19 @@ func NewRouter(sys *System) http.HandlerFunc {
 	sec := sys.Security()
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", frontpage())
-	mx.HandleFunc("/favicon.ico", favicon)
 	mx.Handle("/login", login(sec))
 	mx.Handle("/enter", enter(sec))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
 	mx.Handle("/static/", http.FileServerFS(asset))
-	// everything else is private
+	mx.HandleFunc("/favicon.ico", favicon)
 
 	prv := private(mx)
-
 	prv("/inside", inside)
 	prv("/settings", settings)
 
 	return logRequests(mx)
 }
-
-func favicon(w http.ResponseWriter, r *http.Request) {}
 
 func frontpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -117,6 +113,10 @@ func private(mx *http.ServeMux) func(string, privateFunc) {
 			next(w, r, &s)
 		})
 	}
+}
+
+func favicon(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/static/favicon.ico", http.StatusSeeOther)
 }
 
 type privateFunc func(http.ResponseWriter, *http.Request, *Session)
