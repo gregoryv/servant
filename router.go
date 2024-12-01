@@ -33,11 +33,7 @@ func home(sys *System) http.HandlerFunc {
 func login(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := NewViewModel(sys)
-		if v := r.URL.Query().Get("dest"); v != "" {
-			for i, _ := range m.Logins {
-				m.Logins[i].Href += "&dest=" + v
-			}
-		}
+		m.DecorateLogins(r.URL.Query().Get("dest"))
 		htdocs.ExecuteTemplate(w, "login.html", m)
 	}
 }
@@ -175,6 +171,16 @@ type ViewModel struct {
 func (m *ViewModel) SetSession(s *Session) {
 	m.Session = s
 	m.Nav.SetSession(s)
+}
+
+// decorate login links with destination
+func (m *ViewModel) DecorateLogins(v string) {
+	if v == "" {
+		return
+	}
+	for i, _ := range m.Logins {
+		m.Logins[i].Href += "&dest=" + v
+	}
 }
 
 type Nav struct {
