@@ -1,6 +1,9 @@
 package servant
 
 import (
+	"context"
+	"net/http"
+
 	"github.com/gregoryv/htsec"
 	"github.com/gregoryv/htsec/github"
 	"github.com/gregoryv/htsec/google"
@@ -25,3 +28,8 @@ type System struct {
 
 func (sys *System) SetSecurity(v *htsec.Detail) { sys.sec = v }
 func (sys *System) Security() *htsec.Detail     { return sys.sec }
+
+// todo return own Slip or maybe session
+func (sys *System) Authorize(ctx context.Context, r *http.Request) (*htsec.Slip, error) {
+	return sys.sec.Authorize(ctx, r)
+}

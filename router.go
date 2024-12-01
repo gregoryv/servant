@@ -14,7 +14,7 @@ func NewRouter(sys *System) http.HandlerFunc {
 	mx.Handle("/login", login(sec))
 	mx.Handle("/enter", enter(sec))
 	// reuse the same callback endpoint
-	mx.Handle("/oauth/redirect", callback(sec))
+	mx.Handle("/oauth/redirect", callback(sys))
 	mx.Handle("/static/", http.FileServerFS(asset))
 
 	prv := private(mx)
@@ -65,10 +65,10 @@ func enter(sec *htsec.Detail) http.HandlerFunc {
 	}
 }
 
-func callback(sec *htsec.Detail) http.HandlerFunc {
+func callback(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		slip, err := sec.Authorize(ctx, r)
+		slip, err := sys.Authorize(ctx, r)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
