@@ -30,6 +30,22 @@ func home(sys *System) http.HandlerFunc {
 	}
 }
 
+func inside(sys *System) privateFunc {
+	return func(w http.ResponseWriter, r *http.Request, s *Session) {
+		m := NewViewModel(sys)
+		m.SetSession(s)
+		htdocs.ExecuteTemplate(w, "inside.html", m)
+	}
+}
+
+func settings(sys *System) privateFunc {
+	return func(w http.ResponseWriter, r *http.Request, s *Session) {
+		m := NewViewModel(sys)
+		m.SetSession(s)
+		htdocs.ExecuteTemplate(w, "settings.html", m)
+	}
+}
+
 func login(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := NewViewModel(sys)
@@ -75,23 +91,6 @@ func callback(sys *System) http.HandlerFunc {
 		}
 
 		htdocs.ExecuteTemplate(w, "redirect.html", m)
-	}
-}
-
-// once authorized, the Contact is inside
-func inside(sys *System) privateFunc {
-	return func(w http.ResponseWriter, r *http.Request, s *Session) {
-		m := NewViewModel(sys)
-		m.SetSession(s)
-		htdocs.ExecuteTemplate(w, "inside.html", m)
-	}
-}
-
-func settings(sys *System) privateFunc {
-	return func(w http.ResponseWriter, r *http.Request, s *Session) {
-		m := NewViewModel(sys)
-		m.SetSession(s)
-		htdocs.ExecuteTemplate(w, "settings.html", m)
 	}
 }
 
