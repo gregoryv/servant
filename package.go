@@ -23,7 +23,7 @@ var funcMap = template.FuncMap{
 //go:embed htdocs static
 var asset embed.FS
 
-var debug = log.New(ioutil.Discard, "D ", log.LstdFlags|log.Lshortfile)
+var debug = log.New(ioutil.Discard, "D ", 0)
 
 func init() {
 	if yes, _ := strconv.ParseBool(os.Getenv("D")); yes {

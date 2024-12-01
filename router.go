@@ -102,7 +102,6 @@ func private(mx *http.ServeMux, sys *System) func(string, privateFunc) {
 	return func(pattern string, next privateFunc) {
 		mx.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
 			if err := sys.SessionValid(r); err != nil {
-				debug.Printf("protect: %v", err)
 				m := map[string]string{
 					// page where user selects login
 					"Location": "/login?dest=" + r.URL.String(),
