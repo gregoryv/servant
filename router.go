@@ -11,6 +11,7 @@ func NewRouter(sys *System) http.HandlerFunc {
 	sec := sys.Security()
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", frontpage())
+	mx.HandleFunc("/favicon.ico", favicon)
 	mx.Handle("/login", login(sec))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
@@ -21,11 +22,18 @@ func NewRouter(sys *System) http.HandlerFunc {
 	return logRequests(mx)
 }
 
+func favicon(w http.ResponseWriter, r *http.Request) {}
+
 func frontpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := map[string]any{
+		m := map[string]string{
 			"PathLoginGithub": "/login?use=github",
 			"PathLoginGoogle": "/login?use=google",
+		}
+		if v := r.URL.Query().Get("dest"); v != "" {
+			for k, _ := range m {
+				m[k] += "&dest=" + v
+			}
 		}
 		htdocs.ExecuteTemplate(w, "index.html", m)
 	}
@@ -34,7 +42,12 @@ func frontpage() http.HandlerFunc {
 func login(sec *htsec.Detail) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		guardname := r.URL.Query().Get("use")
-		url, err := sec.GuardURL(guardname)
+		// destination after authorized
+		dest := r.URL.Query().Get("dest")
+		if dest == "" {
+			dest = "/inside"
+		}
+		url, err := sec.GuardURL(guardname, dest)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -61,8 +74,9 @@ func callback(sec *htsec.Detail) http.HandlerFunc {
 		cookie := newCookie(slip.State)
 		http.SetCookie(w, cookie)
 		m := map[string]string{
-			"Location": "/inside",
+			"Location": slip.Dest(), // default page after login
 		}
+
 		htdocs.ExecuteTemplate(w, "redirect.html", m)
 	}
 }
@@ -89,8 +103,14 @@ func protect(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := sessionValid(r); err != nil {
 			debug.Printf("protect: %v", err)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			m := map[string]string{
+				// page where user selects login
+				"Location": "/?dest=" + r.URL.String(),
+			}
+			htdocs.ExecuteTemplate(w, "redirect.html", m)
+			return
 		}
+
 		next.ServeHTTP(w, r)
 	}
 }

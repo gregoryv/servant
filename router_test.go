@@ -19,8 +19,8 @@ func Test_NewRouter_GET(t *testing.T) {
 		"/": 200,
 
 		// private
-		"/inside":   303,
-		"/settings": 303,
+		"/inside":   200,
+		"/settings": 200,
 	}
 	for path, expCode := range cases {
 		t.Run("GET "+path, func(t *testing.T) {
