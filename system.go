@@ -8,7 +8,7 @@ import (
 
 func NewSystem() *System {
 	s := &System{
-		security: htsec.NewDetail(
+		sec: htsec.NewDetail(
 			github.Guard(),
 			google.Guard(),
 		),

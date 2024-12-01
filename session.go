@@ -43,7 +43,7 @@ func existingSession(r *http.Request) *Session {
 	return sessions[ck.Value]
 }
 
-func SaveSession(key string, s *Session) {
+func SetSession(key string, s *Session) {
 	sessions[key] = s
 	// todo save/restore sessions on restart
 }
