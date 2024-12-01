@@ -32,13 +32,10 @@ func home(sys *System) http.HandlerFunc {
 
 func login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := map[string]string{
-			"PathLoginGithub": "/enter?use=github",
-			"PathLoginGoogle": "/enter?use=google",
-		}
+		m := NewViewModel() // wip
 		if v := r.URL.Query().Get("dest"); v != "" {
-			for k, _ := range m {
-				m[k] += "&dest=" + v
+			for i, _ := range m.Logins {
+				m.Logins[i].Href += "&dest=" + v
 			}
 		}
 		htdocs.ExecuteTemplate(w, "login.html", m)

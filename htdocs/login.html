@@ -1,7 +1,5 @@
-<!DOCTYPE html>
+{{ template "header.html" . }}
 
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Login</title>
 <style>
 body { text-align: center }
@@ -11,24 +9,17 @@ table { width: 120px; margin: auto }
 </style>
 
 
-<h1>Login using</h1>
-
-<br>
-<br>
+<h1>Login</h1>
 
 <table>
+{{ range .Logins }}
 <tr>
 <td>
-<img src="/static/github.svg" style="width:32px"/>
+<img src="{{.Img}}" style="width:32px"/>
 </td>
-<td><a href="{{.PathLoginGithub}}">github</a></td>
+<td><a href="{{.Href}}">{{.Text}}</a></td>
 </tr>
+{{end}}
 
-<tr>
-<td>
-<img src="/static/google.svg" style="width:32px"/>
-</td>
-<td><a href="{{.PathLoginGoogle}}">google</a></td>
-</tr>
 </table>
 
