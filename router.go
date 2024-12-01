@@ -75,7 +75,12 @@ func callback(sec *htsec.Detail) http.HandlerFunc {
 			return
 		}
 
-		newSession(slip)
+		s := Session{
+			Token: slip.Token,
+			Name:  slip.Contact.Name,
+			Email: slip.Contact.Email,
+		}
+		SaveSession(slip.State, &s)
 
 		// return a page just to set a cookie and then redirect to a
 		// location. Cannot set a cookie in a plain redirect response.

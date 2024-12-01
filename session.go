@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gregoryv/htsec"
 	"golang.org/x/oauth2"
 )
 
@@ -44,14 +43,8 @@ func existingSession(r *http.Request) *Session {
 	return sessions[ck.Value]
 }
 
-func newSession(slip *htsec.Slip) {
-	// cache the session
-	session := Session{
-		Token: slip.Token,
-		Name:  slip.Contact.Name,
-		Email: slip.Contact.Email,
-	}
-	sessions[slip.State] = &session
+func SaveSession(key string, s *Session) {
+	sessions[key] = s
 	// todo save/restore sessions on restart
 }
 
