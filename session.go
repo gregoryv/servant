@@ -3,17 +3,13 @@ package servant
 import (
 	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/gregoryv/servant/htcook"
 	"golang.org/x/oauth2"
 )
 
 // Read more about security settings
 // https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps#pattern-bff-cookie-security
-
-func NewCookie(value string) *http.Cookie {
-	return htcook.NewCookie(value)
-}
 
 func SessionValid(r *http.Request) error {
 	state, err := r.Cookie(cookieName)
@@ -55,4 +51,15 @@ type Session struct {
 
 func (s *Session) String() string {
 	return fmt.Sprintln(s.Name, s.Email)
+}
+
+func NewCookie(value string) *http.Cookie {
+	return &http.Cookie{
+		Name:     cookieName, // todo __Host-
+		Value:    value,
+		Path:     "/",
+		Expires:  time.Now().Add(15 * time.Minute),
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	}
 }
