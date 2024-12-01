@@ -22,7 +22,7 @@ func newCookie(value string) *http.Cookie {
 	}
 }
 
-func sessionValid(r *http.Request) error {
+func SessionValid(r *http.Request) error {
 	state, err := r.Cookie(cookieName)
 	if err != nil {
 		return err

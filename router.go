@@ -110,7 +110,7 @@ func settings(w http.ResponseWriter, r *http.Request, s *Session) {
 func private(mx *http.ServeMux) func(string, privateFunc) {
 	return func(pattern string, next privateFunc) {
 		mx.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
-			if err := sessionValid(r); err != nil {
+			if err := SessionValid(r); err != nil {
 				debug.Printf("protect: %v", err)
 				m := map[string]string{
 					// page where user selects login
