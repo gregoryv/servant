@@ -23,8 +23,6 @@ func newCookie(state string) *http.Cookie {
 	}
 }
 
-const cookieName = "state"
-
 func sessionValid(r *http.Request) error {
 	state, err := r.Cookie(cookieName)
 	if err != nil {
@@ -35,6 +33,8 @@ func sessionValid(r *http.Request) error {
 	}
 	return nil
 }
+
+const cookieName = "state"
 
 func existingSession(r *http.Request) *Session {
 	ck, err := r.Cookie(cookieName)
@@ -52,10 +52,10 @@ func newSession(slip *htsec.Slip) {
 		Email: slip.Contact.Email,
 	}
 	sessions[slip.State] = &session
-	debug.Println(session.String())
+	// todo save/restore sessions on restart
 }
 
-// token to name
+// state to session
 var sessions = make(map[string]*Session)
 
 // Once authorized the session contains the information.

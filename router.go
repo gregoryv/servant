@@ -24,8 +24,6 @@ func NewRouter(sys *System) http.HandlerFunc {
 	return logRequests(mx)
 }
 
-// todo use a view model
-
 func home() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := NewViewModel()
