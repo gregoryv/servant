@@ -4,15 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gregoryv/htlog"
-	"github.com/gregoryv/htsec"
 )
 
 func NewRouter(sys *System) http.HandlerFunc {
-	sec := sys.Security()
 	mx := http.NewServeMux()
 	mx.Handle("/{$}", home())
-	mx.Handle("/login", login(sec))
-	mx.Handle("/enter", enter(sec))
+	mx.Handle("/login", login())
+	mx.Handle("/enter", enter(sys))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sys))
 	mx.Handle("/static/", http.FileServerFS(asset))
@@ -32,7 +30,7 @@ func home() http.HandlerFunc {
 	}
 }
 
-func login(sec *htsec.Detail) http.HandlerFunc {
+func login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := map[string]string{
 			"PathLoginGithub": "/enter?use=github",
@@ -47,7 +45,7 @@ func login(sec *htsec.Detail) http.HandlerFunc {
 	}
 }
 
-func enter(sec *htsec.Detail) http.HandlerFunc {
+func enter(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		guardname := r.URL.Query().Get("use")
 		// destination after authorized
@@ -55,7 +53,7 @@ func enter(sec *htsec.Detail) http.HandlerFunc {
 		if dest == "" {
 			dest = "/inside"
 		}
-		url, err := sec.GuardURL(guardname, dest)
+		url, err := sys.GuardURL(guardname, dest)
 		if err != nil {
 			debug.Printf("login: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)

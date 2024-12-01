@@ -26,10 +26,6 @@ type System struct {
 	sec *htsec.Detail
 }
 
-func (sys *System) SetSecurity(v *htsec.Detail) { sys.sec = v }
-func (sys *System) Security() *htsec.Detail     { return sys.sec }
-
-// todo return own Slip or maybe session
 func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, error) {
 	slip, err := sys.sec.Authorize(ctx, r)
 	if err != nil {
@@ -44,4 +40,8 @@ func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, er
 	}
 	SetSession(slip.State, &s)
 	return &s, err
+}
+
+func (sys *System) GuardURL(name, dest string) (string, error) {
+	return sys.sec.GuardURL(name, dest)
 }

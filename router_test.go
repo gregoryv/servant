@@ -4,14 +4,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gregoryv/htsec"
 )
 
 func Test_NewRouter_GET(t *testing.T) {
 	// require
 	sys := NewSystem()
-	sys.SetSecurity(htsec.NewDetail())
 
 	h := NewRouter(sys)
 	cases := map[string]int{
