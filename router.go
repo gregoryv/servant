@@ -15,7 +15,7 @@ func NewRouter(sys *System) http.HandlerFunc {
 	mx.Handle("/login", login(sec))
 	// reuse the same callback endpoint
 	mx.Handle("/oauth/redirect", callback(sec))
-
+	mx.Handle("/static/", http.FileServerFS(asset))
 	// everything else is private
 
 	prv := private(mx)
