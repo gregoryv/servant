@@ -13,7 +13,7 @@ import (
 
 func NewSystem() *System {
 	s := &System{
-		sec: htsec.NewDetail(
+		sec: htsec.NewSecurityDetail(
 			github.Guard(),
 			google.Guard(),
 		),
@@ -26,7 +26,7 @@ func NewSystem() *System {
 // System carries domain logic which is exposed via a [http.Handler]
 // using [NewRouter].
 type System struct {
-	sec *htsec.Detail
+	sec *htsec.SecurityDetail
 
 	sessions map[string]*Session
 }
