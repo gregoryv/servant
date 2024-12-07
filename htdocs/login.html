@@ -2,24 +2,30 @@
 
 <title>Login</title>
 <style>
-body { text-align: center }
+body { max-width: 20cm; margin: auto auto; text-align: center }
+
 svg { vertical-align: middle }
 a { color: #000 }
-table { width: 120px; margin: auto }
+table { width: 70px; position: absolute}
+table.Google { margin-left: 360px }
+table.Github { margin-left: 160px }
+img { width: 20cm; margin-left: 80px; margin-top: 20px }
 </style>
 
 
 <h1>Login</h1>
 
-<table>
+{{ template "navbar.html" .}}
+
+<img src="https://raw.githubusercontent.com/gregoryv/htsec/main/security_detail.svg" >
+
 {{ range .Logins }}
+<table class="{{.Text}}">
 <tr>
 <td>
 <img src="{{.Img}}" style="width:32px"/>
 </td>
 <td><a href="{{.Href}}">{{.Text}}</a></td>
 </tr>
-{{end}}
-
 </table>
-
+{{end}}
