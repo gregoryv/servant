@@ -1,4 +1,3 @@
-This module illustrates how to write a web service in Go with oauth2
-using multiple authorization sources.
+Servant is an example web service with protected endpoints using
+package [gregoryv/htsec](https://github.com/gregoryv/htsec).
 
-## Quick start
