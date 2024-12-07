@@ -1,7 +1,6 @@
 package servant
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -39,17 +38,17 @@ func (sys *System) Shutdown() (chan struct{}, func()) {
 	}
 }
 
-func (sys *System) Authorize(ctx context.Context, r *http.Request) (*Session, error) {
-	slip, err := sys.sec.Authorize(ctx, r)
+func (sys *System) Authorize(r *http.Request) (*Session, error) {
+	slip, err := sys.sec.Authorize(r)
 	if err != nil {
 		return nil, err
 	}
 	s := Session{
 		State: slip.State,
 		Token: slip.Token,
-		Name:  slip.Contact.Name,
-		Email: slip.Contact.Email,
-		dest:  slip.Dest(),
+		Name:  slip.Name,
+		Email: slip.Email,
+		dest:  slip.Destination(),
 	}
 	sys.SetSession(slip.State, &s)
 	return &s, err

@@ -74,8 +74,7 @@ func enter(sys *System) http.HandlerFunc {
 
 func callback(sys *System) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		s, err := sys.Authorize(ctx, r)
+		s, err := sys.Authorize(r)
 		if err != nil {
 			debug.Printf("callback: %v", err)
 			htdocs.ExecuteTemplate(w, "error.html", err)
